@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  firstname     String
+  lastname      String?
+  email         String        @unique
+  password      String
+  pin           String
+  accounts      Account[]
+  friends       Friend[]      @relation("UserFriends")
+  notifications Notification[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+}
+
+model Account {
+  id            String        @id @default(uuid())
+  user          User          @relation(fields: [userId], references: [id])
+  userId        String
+  balance       Int
+  transactions  Transaction[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+}
+
+
+model Transaction {
+  id            String              @id @default(uuid())
+  account       Account             @relation(fields: [accountId], references: [id]) // Sender or Source account
+  accountId     String              
+  recipientId   String
+  type          TransactionType     @default(DEBIT) // Default to DEBIT
+  amount        Float
+  category      TransactionCategory @default(OTHER) // Default to OTHER
+  description   String?
+  // status        TransactionStatus   @default(PENDING) // Add default value
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @default(now())
+}
+
+
+model Friend {
+  id            String    @id @default(uuid())
+  user          User      @relation("UserFriends", fields: [userId], references: [id])
+  userId        String
+  // friend        User      @relation("FriendAsUser", fields: [friendId], references: [id])
+  friendId      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+
+  @@unique([userId, friendId])
+}
+
+model Notification {
+  id            String    @id @default(uuid())
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String
+  name          String
+  amount        Int
+  type          TransactionType
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  TRANSFER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionCategory {
+  FOOD
+  SHOPPING
+  TRAVEL
+  OTHER
+}
