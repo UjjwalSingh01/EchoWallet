@@ -11,9 +11,14 @@ type PieData = {
   travelExpenditure: number;
   otherExpenditure: number;
 };
+type AccountDetails = {
+  balance: number,
+  currentMonthCredit: number,
+  currentMonthDebit: number
+}
 
 export const Dashboard = () => {
-  const [account, setAccount] = useState({
+  const [account, setAccount] = useState<AccountDetails>({
     balance: 0,
     currentMonthCredit: 0,
     currentMonthDebit: 0

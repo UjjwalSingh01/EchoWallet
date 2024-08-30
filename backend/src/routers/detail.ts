@@ -159,6 +159,8 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
             select: { balance: true },
         });
 
+        const balance = userBalance?.balance
+
         // Current Month Start and End Dates
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
@@ -260,7 +262,7 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
         // });
 
         return c.json({
-            account: { userBalance, currentMonthCredit, currentMonthDebit },
+            account: { balance , currentMonthCredit, currentMonthDebit },
             pieData: { foodExpenditure, shoppingExpenditure, travelExpenditure, otherExpenditure },
             barData: data
         })

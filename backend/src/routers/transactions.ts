@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { PrismaClient } from '@prisma/client/edge'
+import { PrismaClient, TransactionCategory } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { decode, sign, verify } from 'hono/jwt'
 
@@ -115,13 +115,14 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
 
 
 type transferDetails = {
-    to_id: string,
-    to_name: string,
-    from_name: string,
-    amount: number
+    to: string,
+    amount: number,
+    pin: string,
+    category: TransactionCategory,
+    description? : string
 }  
 
-transactionRouter.post('/decode/transfer', async(c) => {
+transactionRouter.post('/decode/transaction', async(c) => {
 
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
@@ -131,84 +132,135 @@ transactionRouter.post('/decode/transfer', async(c) => {
         const detail: transferDetails = await c.req.json()
         console.log(detail)
 
+        const userId: string = c.get('userId')
+
         const response = await prisma.$transaction(async (tx) => {
 
-            const userId: string = c.get('userId')
-
-            const fromId = await tx.account.findFirst({
+            const from = await tx.user.findFirst({
                 where: {
+                    id: userId
+                },
+                select:{
+                    firstname: true,
+                    lastname: true
+                }
+            })
+
+            if (!from) {
+                c.status(404);
+                return c.json({ message: "Sender User Does Not Exist" });
+            }
+
+            const userAccount = await tx.account.findFirst({
+                where:{
                     userId: userId
                 }
             })
 
-            if(fromId === null){
-                
-                return c.json({
-                    message: "User Does not Exist"
-                })
+            if (!userAccount) {
+                c.status(404);
+                return c.json({ message: "Sender Account Does Not Exist" });
             }
-
-            if (fromId.balance < detail.amount || detail.amount < 0) {
-                c.status(401);
-                return c.json({
-                    message: "Insufficient Balance"
-                })
-            }
-
-            const sender = await tx.account.update({
-                data: {
-                    balance: {
-                        decrement: detail.amount,
-                    }, 
-                    tt_debit: {
-                        increment: detail.amount
-                    }
-                },
-                where: {
-                    id: fromId.id,
-                },
-            })
             
-            const recipient = await tx.account.update({
-                data: {
-                    balance: {
-                        increment: detail.amount,
-                    },
-                    tt_credit: {
-                        increment: detail.amount
-                    }
-                },
-                where: {
-                    userId: detail.to_id,
-                },
-            })
+            if (userAccount.balance < detail.amount || detail.amount < 0) {
+                c.status(401);
+                return c.json({ message: "Insufficient Balance" });
+            }
 
-            const date: string = generateDate();
-        
-            const Tx = await prisma.transaction.create({
-                data: {
-                    from_id: userId,
-                    from_name: detail.from_name,
-                    to_id: detail.to_id,
-                    to_name: detail.to_name,
-                    amount: detail.amount,
-                    date: date
+            const to = await tx.user.findFirst({
+                where: {
+                    id: userId
+                },
+                select:{
+                    firstname: true,
+                    lastname: true
                 }
             })
 
-            // const recipientTx = await prisma.transaction.create({
-            //     data:{
-            //         userId: detail.to_id,
-            //         to: userId,
-            //         to_name: detail.from_name,
-            //         amount: detail.amount,
-            //         date: date
-            //     }
-            // })
+            if (!to) {
+                c.status(404);
+                return c.json({ message: "Recipient User Does Not Exist" });
+            }
+            
+            const toAccount = await tx.account.findFirst({
+                where: { userId: detail.to },
+            });
+            
+            if (!toAccount) {
+                c.status(404);
+                return c.json({ message: "Recipient Account Does Not Exist" });
+            }
+
+
+            const updateUser = await tx.account.update({
+                where:{
+                    userId: userId,
+                    id: userAccount.id
+                },
+                data: {
+                    balance: {
+                        decrement: detail.amount
+                    }
+                }
+            })
+            
+            const updateRecipient = await tx.account.update({
+                where: {
+                    userId: detail.to,
+                    id: toAccount.id
+                },
+                data: {
+                    balance: {
+                        increment: detail.amount,
+                    }
+                },
+                
+            })
+        
+            const debitTx = await tx.transaction.create({
+                data: {
+                  accountId: userAccount.id,
+                  recipientId: detail.to,
+                  type: 'DEBIT',
+                  amount: detail.amount,
+                  category: detail.category || 'OTHER',
+                  description: detail.description || '',
+                },
+              });
+
+            const creditTx = await tx.transaction.create({
+                data: {
+                  accountId: toAccount.id,
+                  recipientId: userId,
+                  type: 'CREDIT',
+                  amount: detail.amount,
+                  category: detail.category || 'OTHER',
+                  description: detail.description || '',
+                },
+              });
+
+            const userNotify = await tx.notification.create({
+                data: {
+                  userId: userId,
+                  name: `${to.firstname} ${to.lastname}`,
+                  amount: detail.amount,
+                  type: 'DEBIT',
+                },
+            });
+
+            const recipientNotify = await tx.notification.create({
+                data: {
+                  userId: detail.to,
+                  name: `${from.firstname} ${from.lastname}`,
+                  amount: detail.amount,
+                  type: 'CREDIT',
+                },
+            });
 
             return c.json({
-                message: Tx
+                message: "Transaction successful"
             });
+
         })
 
         return c.json({

@@ -201,54 +201,37 @@ userRouter.get('/decode/users' , async(c) => {
     }).$extends(withAccelerate())
 
     const userId = c.get('userId')
-    const to: string = c.req.query('filter') || ""
+    const searchTerm: string = c.req.query('searchTerm') || ""
 
     try {
 
-        const user = await prisma.user.findFirst({
+        const users = await prisma.user.findMany({
             where: {
-                id: userId
-            }
-        })
-
-        const balance: any = await prisma.account.findFirst({
-            where: {
-                userId: userId
-            }
-        })
-
-        if(user === null){
-            c.status(401)
-            return c.json({
-                message: "User Does not Exist"
-            })
-        }
-        else {
-            const response = await prisma.user.findMany({
-                take: 10,
-                where: {
+              OR: [
+                {
                   firstname: {
-                    contains: to,
+                    contains: searchTerm,
+                    mode: 'insensitive', // Optional: case-insensitive search
                   },
                 },
-            })
-    
-            
-            const message = response.map(users => {
-                return ({
-                    to_fname: users.firstname,
-                    to_lname: users.lastname,
-                    to_id: users.id,
-                    from_name: user.firstname
-                })
-            })
-    
-            return c.json({
-                message: message,
-                balance: balance.balance,
-                user: user.firstname
-            })
-        }
+                {
+                  lastname: {
+                    contains: searchTerm,
+                    mode: 'insensitive', // Optional: case-insensitive search
+                  },
+                },
+              ],
+            }, 
+            select:{
+                id: true,
+                firstname: true,
+                lastname: true
+            }
+        });
+
+        return c.json({
+            user: users
+        })
 
     } catch(error) {
         console.error('Server-Side Error in Fetcing Users: ', error);
@@ -387,12 +370,13 @@ userRouter.post('/decode/updateprofile', async(c) =>{
     
 })
 
+
 type ResetPasswordDetail = {
     oldPassword: string,
     newPassword: string
 }
 
-userRouter.post('/decode/resetpass', async(c) =>{
+userRouter.post('/decode/reset-pass', async(c) =>{
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())

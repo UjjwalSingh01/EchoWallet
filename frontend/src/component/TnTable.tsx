@@ -3,12 +3,10 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import { transactionCategoryStyles, formatAmount, formatDateTime, removeSpecialCharacters } from "../lib/utils";
 
 interface Transaction {
-  id: string;
   name: string;
   amount: number;
   date: string;
   type: 'DEBIT' | 'CREDIT';
-  paymentChannel: string;
   category: string;
 }
 
@@ -53,21 +51,19 @@ const TransactionsTable: FC<TransactionsTableProps> = ({ transactions }) => {
           <TableRow>
             <TableCell style={{ padding: '8px' }}><Typography variant="subtitle2">Transaction</Typography></TableCell>
             <TableCell style={{ padding: '8px' }}><Typography variant="subtitle2">Amount</Typography></TableCell>
-            {/* <TableCell style={{ padding: '8px' }}><Typography variant="subtitle2">Status</Typography></TableCell> */}
             <TableCell style={{ padding: '8px' }}><Typography variant="subtitle2">Date</Typography></TableCell>
             <TableCell style={{ padding: '8px' }}><Typography variant="subtitle2">Category</Typography></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {transactions.map((t) => {
-            // const status = getTransactionStatus(new Date(t.date));
+          {transactions.map((t, index) => {
             const amount = formatAmount(t.amount);
             const isDebit = t.type === 'DEBIT';
             const isCredit = t.type === 'CREDIT';
 
             return (
               <TableRow
-                key={t.id}
+                key={index}
                 style={{
                   backgroundColor: isDebit || amount[0] === '-' ? '#FFFBFA' : '#F6FEF9',
                   borderBottom: '1px solid #e0e0e0',
@@ -91,17 +87,9 @@ const TransactionsTable: FC<TransactionsTableProps> = ({ transactions }) => {
                   {isDebit ? `-${amount}` : isCredit ? amount : amount}
                 </TableCell>
 
-                {/* <TableCell style={{ padding: '8px' }}>
-                  <CategoryBadge category={status} />
-                </TableCell> */}
-
                 <TableCell style={{ padding: '8px', minWidth: '32px' }}>
                   <Typography variant="body2">{formatDateTime(new Date(t.date)).dateTime}</Typography>
                 </TableCell>
-
-                {/* <TableCell style={{ padding: '8px', textTransform: 'capitalize', minWidth: '24px' }}>
-                  <Typography variant="body2">{t.paymentChannel}</Typography>
-                </TableCell> */}
 
                 <TableCell style={{ padding: '8px' }}>
                   <CategoryBadge category={t.category} />

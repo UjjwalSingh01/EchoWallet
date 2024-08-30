@@ -14,7 +14,7 @@ interface User {
   id: string;
   firstname: string;
   lastname: string;
-  email: string;
+  // email: string;
 }
 
 export default function Transfer() {
@@ -23,12 +23,12 @@ export default function Transfer() {
       id: '1',
       firstname: "John",
       lastname: 'Doe',
-      email: 'hd@gmail.com'
+      // email: 'hd@gmail.com'
     } , {
         id: '1',
         firstname: "King",
         lastname: 'Slayer',
-        email: 'hd@gmail.com'
+        // email: 'hd@gmail.com'
     }
   ]);
 
@@ -39,13 +39,14 @@ export default function Transfer() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/users');
-        console.log(response.data); // Check if this is an array
-        if (Array.isArray(response.data)) {
-          setUsers(response.data);
-        } else {
-          console.error("Expected an array but got:", response.data);
-        }
+        const response = await axios.get('http://localhost:8787/api/v1/user/decode/users', {
+          params: {searchTerm}
+        });
+        
+        console.log(response.data.user); 
+        
+        setUsers(response.data.user)
+
       } catch (error) {
         console.error("Error fetching users:", error);
       }

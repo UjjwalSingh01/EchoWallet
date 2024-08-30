@@ -9,7 +9,7 @@ import image from '../assets/profile.jpg'
 interface Friend {
   id: string,
   firstname: string,
-  lastname: string | undefined
+  lastname?: string
 }
 
 export default function FriendCard({ data }: { data: Friend }) {

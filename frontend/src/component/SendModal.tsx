@@ -39,7 +39,7 @@ export default function SendMoneyModal({id}:{id: string}) {
           amount,
           pin,
           category,
-          description // Include description in the API request
+          description 
         }, {
           headers: { "Authorization": localStorage.getItem("token") },
         }

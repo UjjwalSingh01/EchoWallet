@@ -75,7 +75,7 @@ export default function Profile() {
   async function resetPass() {
     try {
       
-      const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpass', 
+      const response = await axios.post('http://localhost:8787/api/v1/user/decode/reset-pass', 
         {
           oldPassword,
           newPassword

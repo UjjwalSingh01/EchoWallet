@@ -7,14 +7,14 @@ import FriendCard from '../component/FriendCard';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-type FriendDetail = Array<{ 
+interface FriendDetail{ 
   id: string,
   firstname: string,
-  lastname: string | undefined 
-}>;
+  lastname?: string 
+};
 
 const Friends = () => {
-  const [friends, setFriends] = useState<FriendDetail>([
+  const [friends, setFriends] = useState<FriendDetail[]>([
     {
       id: "1",
       firstname: "John",
@@ -68,9 +68,15 @@ const Friends = () => {
           </Typography>
           <Divider />
           <div className='grid grid-cols-3 gap-5 m-8'>
-            {friends.map((friend, index) => (
-              <FriendCard key={index} data={friend} />
-            ))}
+          {friends.length > 0 ? (
+              friends.map((friend, index) => (
+                <FriendCard key={index} data={friend} />
+              ))
+            ) : (
+              <Typography variant="body1" color="text.secondary">
+                No friends found.
+              </Typography>
+            )}
           </div>
         </CardContent>
       </Card>

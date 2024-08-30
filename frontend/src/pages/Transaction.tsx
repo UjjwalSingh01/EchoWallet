@@ -22,7 +22,7 @@ const Transaction = () => {
       date: "Wed, Oct 25, 8:30 AM",
       amount: 500,
       type: 'DEBIT',
-      category: "Food"
+      category: "Travel"
     } , {
       name:"John Doe",
       date: "Wed, Oct 25, 8:30 AM",
@@ -38,7 +38,9 @@ const Transaction = () => {
         const response = await axios.get('http://localhost:8787/api/v1/transaction/decode/gettransaction', {
           headers: { "Authorization": localStorage.getItem("token") }
         });
+
         setTransactions(response.data.transactions);
+
       } catch (error) {
         console.error("Error in Fetching Details: ", error);
       }

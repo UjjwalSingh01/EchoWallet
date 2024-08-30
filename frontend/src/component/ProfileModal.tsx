@@ -46,7 +46,7 @@ export default function BasicModal(props: data) {
           }
         )
 
-        console.log(response.data)
+        console.log(response.data.message)
       }
 
       else {
@@ -59,7 +59,7 @@ export default function BasicModal(props: data) {
           }
         )
 
-        console.log(response.data)
+        console.log(response.data.message)
       }
 
     } catch (error) {
@@ -106,19 +106,19 @@ export default function BasicModal(props: data) {
                     id="outlined-basic"
                     label="Old Pin"
                     variant="outlined"
-                    onChange={(e) => { setOldPin(e.target.value); }}
+                    onChange={(e) => { setOldPin(e.target.value) }}
                   />
                   <TextField
                     sx={{ width:"100%", marginTop:3 }}
                     id="outlined-basic"
                     label="New Pin"
                     variant="outlined"
-                    onChange={(e) => { setNewPin(e.target.value); }}
+                    onChange={(e) => { setNewPin(e.target.value) }}
                   />
                   <Button onClick={() => {handleClose(props.action)}} sx={{marginBottom:2, marginTop:3}} variant="outlined">
                       {props.action}
                   </Button>
-                  </>  
+                </>  
               )
             }
         </Box>
