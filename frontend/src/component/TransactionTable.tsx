@@ -71,7 +71,19 @@ export default function UserTable({transactions}: {transactions: TransactionDeta
                   ₹ {transaction.amount}
                 </StyledTableCell>
                 <StyledTableCell align="center">{transaction.date}</StyledTableCell>
-                <StyledTableCell sx={{ color:"green" }} align="center">{transaction.category}</StyledTableCell>
+                <StyledTableCell
+                  sx={{
+                    color: transaction.category === 'Food' 
+                          ? '#D09683' 
+                          : transaction.category === 'Travel' 
+                          ? '#CC313D' 
+                          : 'blue',     
+                    }}
+                  align="center"
+                  >
+                  {transaction.category}
+                </StyledTableCell>
+
               </StyledTableRow>
             ))}
           </TableBody>

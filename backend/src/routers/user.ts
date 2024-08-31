@@ -4,6 +4,13 @@ import zod from 'zod'
 import { decode, sign, verify } from 'hono/jwt'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
+import {
+    getCookie,
+    getSignedCookie,
+    setCookie,
+    setSignedCookie,
+    deleteCookie,
+} from 'hono/cookie'
 
 
 export const userRouter = new Hono<{
@@ -107,7 +114,7 @@ userRouter.post('/register', async (c) => {
                 email: user.email,
                 // Exclude sensitive information like hashed password
             },
-        });
+        });  
         
     } catch (error) {
         console.error("Server-Side Error In Signup: ", error);
@@ -120,7 +127,7 @@ userRouter.post('/register', async (c) => {
 })
 
 
-type SigninDetail = {
+interface SigninDetail {
     email: string,
     password: string
 }
@@ -314,7 +321,7 @@ userRouter.post('/decode/addbalance', async(c) =>{
 })
 
 
-type ResetPinDetail = {
+interface ResetPinDetail {
     oldPin: string,
     newPin: string
 }
@@ -366,12 +373,44 @@ userRouter.post('/decode/resetpin', async(c) =>{
 })
 
 
+interface UpdateDetails {
+    firstname: string,
+    lastname: string,
+    email: string
+}
+
 userRouter.post('/decode/updateprofile', async(c) =>{
-    
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const detail: UpdateDetails = await c.req.json()
+
+        const userId = c.get('userId');
+
+        const updateUser = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                firstname: detail.firstname,
+                lastname: detail.lastname,
+                email: detail.email
+            }
+        })
+
+        return c.json({
+            message: "User Credential Edited Successfully"
+        })
+
+    } catch (error) {
+        console.error('Server-Site Error in Updating User: ', error)
+    }
 })
 
 
-type ResetPasswordDetail = {
+interface ResetPasswordDetail  {
     oldPassword: string,
     newPassword: string
 }
@@ -430,6 +469,12 @@ userRouter.post('/decode/reset-pass', async(c) =>{
         console.error("Server-site Error in Resetting Password: ", error)
     }
 })
+
+
+userRouter.post('/decode/logout', async (c) => {
+    
+})
+
 
 
 // Cross-Site Scripting (XSS) is a type of security vulnerability that allows an attacker to inject malicious scripts into web pages viewed by other users. 

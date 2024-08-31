@@ -63,7 +63,13 @@ export default function Profile() {
   async function handleUpdate() {
     try {
       // handle name, email
-      // http://localhost:8787/api/v1/user/decode/updateprofile
+      const response = await axios.post('http://localhost:8787/api/v1/user/decode/updateprofile', {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email
+      } , {
+        headers: { "Authorization": localStorage.getItem("token") },
+      })
 
       // setUser(response.data.user)
 
@@ -132,11 +138,11 @@ export default function Profile() {
             </Button>
           </div>
           <div className='flex gap-6 justify-around mx-20'>
-            <TextField id="outlined-basic" label='First Name' defaultValue={user.firstname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
-            <TextField id="outlined-basic" label="Last Name" defaultValue={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
+            <TextField id="outlined-basic" label='First Name' onChange={(e) => {user.firstname = e.target.value}} defaultValue={user.firstname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
+            <TextField id="outlined-basic" label="Last Name" onChange={(e) => {user.lastname = e.target.value}} defaultValue={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
           </div>
           <div className='flex justify-center items-center'>
-            <TextField id="outlined-basic" label="Email" defaultValue={user.email} variant="outlined"  sx={{ marginBottom: 5, width:'35%',}} />
+            <TextField id="outlined-basic" label="Email" onChange={(e) => {user.email = e.target.value}} defaultValue={user.email} variant="outlined"  sx={{ marginBottom: 5, width:'35%',}} />
           </div>
           <div className='flex justify-around items-center mb-10'>
             <Button onClick={() => {handleUpdate()}} variant="outlined">Update</Button>

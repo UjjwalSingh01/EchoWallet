@@ -13,6 +13,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const drawerWidth: number = 240;
 
@@ -69,7 +70,15 @@ export default function Navbar() {
   const handleLogout = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
-    navigate('/profile');
+
+    localStorage.clear();
+
+    // try {
+    //   axios.post('http://localhost:8787/api/v1/user/decode/logout')
+    // } catch (error) {
+    //   console.error("Error in Logging out: ", error)
+    // }
+    
   };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -165,7 +174,7 @@ export default function Navbar() {
               fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } 
             }} // 2. Adjust font size for Typography
           >
-            Exchange
+            EchoWallet
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>

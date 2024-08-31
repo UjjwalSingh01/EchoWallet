@@ -18,3 +18,24 @@ app.route("api/v1/trip", tripsRouter)
 app.route("api/v1/detail", detailRouter)
 
 export default app
+
+
+
+
+
+// COOKIES
+
+// const token: string = sign({ id: user.id }, c.env.JWT_SECRET);
+
+// setCookie(c, 'token', token, {
+//     httpOnly: true,
+//     secure: false,
+//     sameSite: 'lax',
+//     maxAge: 60 * 60 * 24, // 1 day
+// });
+
+// GET COOKIE IN /decode/* and extract userId
+// const token = await getCookie(c, 'token')
+
+// AT LOGOUT
+// deleteCookie(c, 'token')
