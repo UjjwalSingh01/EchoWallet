@@ -24,6 +24,7 @@ model User {
   accounts      Account[]
   friends       Friend[]      @relation("UserFriends")
   notifications Notification[]
+  groups        GroupMember[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @default(now())
 }
@@ -77,17 +78,63 @@ model Notification {
   updatedAt     DateTime  @default(now())
 }
 
+
+model Group {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  // balance     Int            @default(0) // Balance within the group (negative for debt, positive for credit)
+  createdAt   DateTime       @default(now())
+  members     GroupMember[]
+  expenses    GroupTransaction[]
+}
+
+
+model GroupMember {
+  id       String    @id @default(uuid())
+  groupId  String
+  userId   String
+  balance  Int    @default(0) // Balance within the group (negative for debt, positive for credit)
+  totalExpenditure Int
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model GroupTransaction {
+  id               String    @id @default(uuid())
+  description      String
+  amount           Int
+  paidByUserId     String       // The user who paid the expense
+  groupId          String
+  transactionDate  DateTime   @default(now())
+  group            Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  shares           Share[]
+}
+
+
+model Share {
+  id               String    @id @default(uuid())
+  transactionId    String
+  userId           String
+  shareAmount      Int      // Amount this user owes for the expense
+  transaction      GroupTransaction    @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  
+  @@unique([transactionId, userId])
+}
+
 enum TransactionType {
   CREDIT
   DEBIT
   TRANSFER
 }
 
-enum TransactionStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
+// enum TransactionStatus {
+//   PENDING
+//   COMPLETED
+//   FAILED
+// }
 
 enum TransactionCategory {
   FOOD
@@ -95,3 +142,7 @@ enum TransactionCategory {
   TRAVEL
   OTHER
 }
+
+
+
+// hrr member ko kitna dena hai ua lena hai?
