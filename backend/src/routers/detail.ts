@@ -25,8 +25,8 @@ detailRouter.use("/decode/*", async (c, next) => {
   
     } catch (err) {
         return c.json({
-            message: "You Are Not Logged In"
-        })
+            error: "You Are Not Logged In"
+        }, 400)
     }
 })
 
@@ -58,6 +58,9 @@ detailRouter.get('/decode/getnotifications', async(c) => {
 
     } catch (error) {
         console.error("Server-Site Error in Getting Notification: ", error)
+        return c.json({
+            error: "Server-Site Error in Getting Notification"
+        }, 500)
     }
 })
 
@@ -100,8 +103,10 @@ detailRouter.get('/decode/getfriends', async (c) => {
         });
 
     } catch (error) {
-        console.error("Server-Side Error in Getting Friends: ", error);
-        return c.json({ error: "An error occurred while retrieving friends." });
+        console.error("Server-Side Error in Retrieving Friends: ", error);
+        return c.json({ 
+            error: "Server-Side Error in Retrieving Friends"
+        }, 500);
     }
 });
 
@@ -120,8 +125,19 @@ detailRouter.post('/decode/addfriend', async (c) => {
         const details: AddFriendDetail = await c.req.json(); // Ensure to await the JSON parsing
         const userId: string = c.get('userId');
 
-        // Add friend relationship
-        const response = await prisma.friend.create({
+        const response = await prisma.user.findFirst({
+            where:{
+                id: details.friendId
+            }
+        })
+
+        if(response === null){
+            return c.json({
+                error: "Friend Does Not exist"
+            }, 400)
+        }
+
+        const addfriend = await prisma.friend.create({
             data: {
                 userId: userId,
                 friendId: details.friendId,
@@ -129,14 +145,14 @@ detailRouter.post('/decode/addfriend', async (c) => {
         });
 
         return c.json({
-            success: true,
             message: 'Friend added successfully',
-            response
         });
 
     } catch (error) {
         console.error("Server-Side Error in Adding Friends: ", error);
-        return c.json({ error: "An error occurred while adding friend." });
+        return c.json({ 
+            error: "Server-Side Error while adding friend." 
+        }, 500);
     }
 });
 
@@ -151,9 +167,8 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
         }}).$extends(withAccelerate());
 
     try {
-        const userId: string = c.get('userId'); // Ensure userId is fetched correctly
+        const userId: string = c.get('userId');
 
-        // User Balance
         const userBalance = await prisma.account.findFirst({
             where: { userId },
             select: { balance: true },
@@ -268,7 +283,9 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
         })
 
     } catch (error) {
-        console.error("Server-Side Error in Getting Details: ", error);
-        return c.json({ error: "An error occurred while retrieving details." }); // Return an error response
+        console.error("Server-Side Error in Retrieving Dashboard Details: ", error);
+        return c.json({ 
+            error: "Server-Side Error in Retrieving Dashboard Details"
+        }, 500);
     }
 });

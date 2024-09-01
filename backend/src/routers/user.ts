@@ -184,10 +184,16 @@ userRouter.get('/login', async (c) => {
 
 
 userRouter.use("/decode/*", async (c, next) => {
-    const token = c.req.header("authorization") || "";
-    // console.log("middle ware called");
-  
     try {
+        const token = c.req.header("authorization") || "";
+        // console.log("middle ware called");
+
+        if(!token) {
+            return c.json({
+                error: "Token Not Given"
+            }, 400)
+        }
+
         const user: any = await verify(token, c.env.JWT_SECRET)
         c.set("userId", user.id);
   
@@ -196,7 +202,7 @@ userRouter.use("/decode/*", async (c, next) => {
     } catch (err) {
         return c.json({
             message: "You Are Not Logged In"
-        })
+        }, 403)
     }
 })
 
@@ -207,10 +213,9 @@ userRouter.get('/decode/users' , async(c) => {
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
-    const userId = c.get('userId')
-    const searchTerm: string = c.req.query('searchTerm') || ""
-
     try {
+        const userId = c.get('userId')
+        const searchTerm: string = c.req.query('searchTerm') || ""
 
         const users = await prisma.user.findMany({
             where: {
@@ -218,13 +223,13 @@ userRouter.get('/decode/users' , async(c) => {
                 {
                   firstname: {
                     contains: searchTerm,
-                    mode: 'insensitive', // Optional: case-insensitive search
+                    mode: 'insensitive', //  case-insensitive search
                   },
                 },
                 {
                   lastname: {
                     contains: searchTerm,
-                    mode: 'insensitive', // Optional: case-insensitive search
+                    mode: 'insensitive', 
                   },
                 },
               ],
@@ -242,6 +247,9 @@ userRouter.get('/decode/users' , async(c) => {
 
     } catch(error) {
         console.error('Server-Side Error in Fetcing Users: ', error);
+        return c.json({
+            error: "Server-site Error in Retrievng Users"
+        }, 500)
     }
 })
 
@@ -271,6 +279,9 @@ userRouter.get('/decode/userprofile', async(c) =>{
 
     } catch (error) {
         console.error("Server-site Error in Fetching Profile: ", error)
+        return c.json({
+            error: "Server-site Error in Retrieving Profile"
+        }, 500)
     }
 })
 
@@ -291,22 +302,23 @@ userRouter.post('/decode/addbalance', async(c) =>{
             },
             select:{
                 id: true,
-                balance: true
             }
         })
 
         if(user === null){
             return c.json({
-                message: "Account Not Created"
-            })
+                error: "Account Not Created"
+            }, 404)
         }
 
-        const update = await prisma.account.update({
+        await prisma.account.update({
             where:{
                 id: user.id
             },
             data:{
-                balance: user.balance + balance
+                balance: {
+                    increment: balance
+                }
             }
         })
 
@@ -317,6 +329,9 @@ userRouter.post('/decode/addbalance', async(c) =>{
         
     } catch (error) {
         console.error("Server-site Error in Adding Balance: ", error)
+        return c.json({
+            error: "Server-site Error in Adding Balance"
+        }, 500)
     }
 })
 
@@ -345,8 +360,14 @@ userRouter.post('/decode/resetpin', async(c) =>{
             }
         })
 
-        if(response?.pin === detail.oldPin) {
-            const updatePassword = await prisma.user.update({
+        if(!response) {
+            return c.json({
+                error: "User Not Found"
+            }, 404)
+        }
+
+        if(response.pin === detail.oldPin) {
+            await prisma.user.update({
                 where:{
                     id: userId,
                 }, 
@@ -362,13 +383,16 @@ userRouter.post('/decode/resetpin', async(c) =>{
         }
         else {
             return c.json({
-                message: "Invalid Pin"
-            })
+                error: "Invalid Pin"
+            }, 403)
         }
     
         
     } catch(error){
         console.error("Server-site Error in Resetting Pin: ", error)
+        return c.json({
+            error: "Server-site Error in Resetting Pin"
+        }, 500)
     }
 })
 
@@ -400,12 +424,21 @@ userRouter.post('/decode/updateprofile', async(c) =>{
             }
         })
 
+        // if(!updateUser){
+        //     c.json({
+        //         error: ""
+        //     })
+        // }
+
         return c.json({
             message: "User Credential Edited Successfully"
         })
 
     } catch (error) {
         console.error('Server-Site Error in Updating User: ', error)
+        return c.json({
+            error: "Server-site Error in Updating User"
+        }, 500)
     }
 })
 
@@ -436,16 +469,15 @@ userRouter.post('/decode/reset-pass', async(c) =>{
 
         if(response === null){
             return c.json({
-                message: "User Does not Exist"
-            })
+                error: "User Does not Exist"
+            }, 404)
         }
 
         const isMatch = await bcrypt.compare(detail.oldPassword, response.password)
         if(!isMatch){
-            c.status(401)
             return c.json({
-                message: "Invalid Credentials"
-            })
+                error: "Invalid Credentials"
+            }, 403)
         }
 
         // Hash the password
@@ -467,6 +499,9 @@ userRouter.post('/decode/reset-pass', async(c) =>{
 
     } catch(error){
         console.error("Server-site Error in Resetting Password: ", error)
+        return c.json({
+            error: "Server-site Error in Resetting Password"
+        }, 500)
     }
 })
 

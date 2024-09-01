@@ -36,9 +36,15 @@ function formateDate(date: Date){
 
 
 transactionRouter.use("/decode/*", async (c, next) => {
-    const token = c.req.header("authorization") || "";
-  
     try {
+        const token = c.req.header("authorization") || "";
+
+        if(!token) {
+            return c.json({
+                error: "Token Not Given"
+            }, 400)
+        }
+
         const user: any = await verify(token, c.env.JWT_SECRET)
         c.set("userId", user.id);
   
@@ -47,7 +53,7 @@ transactionRouter.use("/decode/*", async (c, next) => {
     } catch (err) {
         return c.json({
             message: "You Are Not Logged In"
-        })
+        }, 403)
     }
 })
 
@@ -67,7 +73,6 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
     try {
         const userId: string = c.get('userId');
 
-        // Fetch transactions
         const transactions = await prisma.transaction.findMany({
             where: {
                 accountId: userId,
@@ -101,15 +106,15 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
             }
         })
 
-        // Return the transactions with recipient details
         return c.json({
             transactions: TransactionDetails
         });
-
-
     
     } catch(error) {
-        console.error("Server-Side Error in Getting Details: ", error);
+        console.error("Server-Side Error in Retrieving Transactions: ", error);
+        return c.json({
+            error: "Server-Side Error in Retrieving Transactions"
+        }, 500)
     }
 })
 
@@ -147,8 +152,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
             })
 
             if (!from) {
-                c.status(404);
-                return c.json({ message: "Sender User Does Not Exist" });
+                return c.json({ message: "Sender User Does Not Exist" }, 404);
             }
 
             const userAccount = await tx.account.findFirst({
@@ -158,13 +162,11 @@ transactionRouter.post('/decode/transaction', async(c) => {
             })
 
             if (!userAccount) {
-                c.status(404);
-                return c.json({ message: "Sender Account Does Not Exist" });
+                return c.json({ message: "Sender Account Does Not Exist" }, 404);
             }
             
             if (userAccount.balance < detail.amount || detail.amount < 0) {
-                c.status(401);
-                return c.json({ message: "Insufficient Balance" });
+                return c.json({ message: "Insufficient Balance" }, 401);
             }
 
             const to = await tx.user.findFirst({
@@ -178,8 +180,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
             })
 
             if (!to) {
-                c.status(404);
-                return c.json({ message: "Recipient User Does Not Exist" });
+                return c.json({ message: "Recipient User Does Not Exist" }, 404);
             }
             
             const toAccount = await tx.account.findFirst({
@@ -187,8 +188,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
             });
             
             if (!toAccount) {
-                c.status(404);
-                return c.json({ message: "Recipient Account Does Not Exist" });
+                return c.json({ message: "Recipient Account Does Not Exist" }, 404);
             }
 
 
@@ -269,6 +269,9 @@ transactionRouter.post('/decode/transaction', async(c) => {
 
     } catch (error){
         console.error("Server-Side Error In Transfer: ", error)
+        return c.json({
+            error:"Server-Side Error In Transfer"
+        }, 500)
     }
 
     
