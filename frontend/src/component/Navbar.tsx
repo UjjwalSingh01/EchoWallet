@@ -170,9 +170,8 @@ export default function Navbar() {
             noWrap
             component="div"
             sx={{ 
-              display: { xs: 'none', sm: 'block' }, 
               fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } 
-            }} // 2. Adjust font size for Typography
+            }} 
           >
             EchoWallet
           </Typography>

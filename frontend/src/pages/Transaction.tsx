@@ -66,6 +66,7 @@ const Transaction = () => {
           height: '80%',          
           display: 'flex',        
           flexDirection: 'column',
+          marginRight:3
         }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>

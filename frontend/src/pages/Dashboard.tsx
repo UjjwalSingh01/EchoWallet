@@ -59,13 +59,13 @@ export const Dashboard = () => {
 
   return (
     <>
-      <div className="flex-col w-full">
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm: grid-cols-1  justify-around gap-16 h-auto my-16 mx-16">
+      <div className="flex-col w-full ">
+        <div className="grid lg:grid-cols-3 sm: grid-cols-1  justify-around gap-16 h-auto my-16 mx-16">
             <AmountCard heading="Wallet" amount={account.balance}/>
             <AmountCard heading="Monthly Credit" amount={account.currentMonthCredit}/>
             <AmountCard heading="Monthly Debit" amount={account.currentMonthDebit}/>
         </div>
-        <div className="grid lg:grid-cols-2 sm:grid-cols-1">
+        <div className="grid md:grid-cols-1">
           <div className="grid justify-around items-center my-7 gap-10 mx-20">
             <Barchart dataset={barData} />
           </div>

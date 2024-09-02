@@ -1,8 +1,6 @@
-import * as React from 'react';
-import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-// import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
@@ -19,6 +17,8 @@ import LuggageIcon from '@mui/icons-material/Luggage';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import GroupIcon from '@mui/icons-material/Group';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@mui/system';
 
 
 function HomeIcon(props: SvgIconProps) {
@@ -59,7 +59,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Sidebar() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    // Set the drawer's open state based on the screen size
+    if (isLargeScreen) {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [isLargeScreen]);
 
   const navigate = useNavigate();
 
@@ -67,16 +77,19 @@ export default function Sidebar() {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Drawer variant="permanent" open={open}>
-        <Avatar
-          className='self-center mt-8'
-          alt="Username"
-          src="/static/images/avatar/1.jpg"
-          sx={{ width: 56, height: 56 }}
-        />
-        <div className='flex-row self-center my-4'>
-          <p className='mx-4'>Hello</p>
-          <p>Username</p>
+        <div className='hidden xl:flex xl:flex-col xl:justify-center xl:items-center'>
+          <Avatar
+            className='mt-8'
+            alt="Username"
+            src="/static/images/avatar/1.jpg"
+            sx={{ width: 56, height: 56 }}
+          />
+          <div className='flex flex-col items-center my-4'>
+            <p className='mx-4'>Hello</p>
+            <p>Username</p>
+          </div>
         </div>
+
         <Divider />
         <List>
           {['Dashboard', 'Transaction', 'Transfer', 'Trips', 'Notification'].map((text, index) => (

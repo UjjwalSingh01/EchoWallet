@@ -3,20 +3,18 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
-interface FeaturedPostProps {
-  post: {
-    date: string;
-    description: string;
-    image: string;
-    imageLabel: string;
-    title: string;
-  };
+interface GroupDetails {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  balance: number;
 }
 
-export default function TripCard() {
+export default function TripCard({data} : {data: GroupDetails}) {
 
   return (
-      <Card sx={{ display: 'flex', width: '70%', margin:5 }}>
+      <Card sx={{ display: 'flex', width: 'full', margin:5 }}>
         <CardMedia
           component="img"
           sx={{ width: 160, display: { xs: 'none', sm: 'block' } }}
@@ -25,16 +23,16 @@ export default function TripCard() {
         />
         <CardContent sx={{ flex: 1 }}>
           <Typography component="h2" variant="h5">
-            title
+            {data.title}
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
-            date
+            {data.date}
           </Typography>
           <Typography variant="subtitle1" paragraph>
-            description
+            {data.description}
           </Typography>
-          <Typography variant="subtitle1" color="primary">
-            Learn More
+          <Typography variant="subtitle1" color= {data.balance > 0 ? "green" : "red"}>
+            Balance: ₹{Math.abs(data.balance)}
           </Typography>
         </CardContent>
       </Card>

@@ -63,6 +63,11 @@ export default function Notification() {
           height: '80%',          
           display: 'flex',        
           flexDirection: 'column',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }}>
         <CardContent sx={{padding:4}}>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>

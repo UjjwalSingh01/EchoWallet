@@ -24,6 +24,16 @@ const Friends = () => {
       id: "2",
       firstname: "Jane",
       lastname: "Doe"
+    } ,
+    {
+      id: "1",
+      firstname: "John",
+      lastname: "Doe"
+    }, 
+    {
+      id: "2",
+      firstname: "Jane",
+      lastname: "Doe"
     }
   ]);
 
@@ -61,13 +71,18 @@ const Friends = () => {
           height: '80%',          
           display: 'flex',        
           flexDirection: 'column',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
             Friends
           </Typography>
           <Divider />
-          <div className='grid grid-cols-3 gap-5 m-8'>
+          <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 m-8'>
           {friends.length > 0 ? (
               friends.map((friend, index) => (
                 <FriendCard key={index} data={friend} />
