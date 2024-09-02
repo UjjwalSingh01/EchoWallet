@@ -21,11 +21,11 @@ We are continually working to enhance EchoWallet with new features and improveme
 #### 💸 - Payment Gateway Integration
 - Implement a secure and reliable payment gateway to facilitate transactions across multiple platforms. This will allow users to make payments directly to external vendors or services, expanding the usability of EchoWallet beyond peer-to-peer transactions.
 
+#### Offline Transation
+- Feature which is particularly useful in scenarios where the internet connection is unstable or unavailable, allowing transactions to be completed even when a device is not connected to a network. 
+
 #### 💳 - Credit Card Integration
 - Introduce the ability for users to comprehensively track their credit card finances. Users will be able to manage their credit card transactions and monitor their spending limits directly within the app.
-
-#### 🔑 - Forgot Password Feature
-- Add a "Forgot Password" functionality to enhance user account security and convenience. This feature will allow users to reset their passwords securely via email or SMS, ensuring they can always regain access to their accounts.
 
 
 ## Getting Started
@@ -34,7 +34,6 @@ To get started with this project, clone the repository and follow the setup inst
 
 ```
 git clone https://github.com/UjjwalSingh01/EchoWallet.git
-
 ```
 
 ### Backend Setup
