@@ -75,7 +75,7 @@ export default function Transfer() {
         width: '100vw',            
         boxSizing: 'border-box',   
         padding: 2,                
-        backgroundColor: '#f5f5f5' 
+        // backgroundColor: '#f5f5f5' 
       }}
     >
       <Card sx={{ 

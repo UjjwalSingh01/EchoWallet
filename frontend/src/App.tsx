@@ -12,14 +12,26 @@ import Profile from './pages/Profile';
 import Friends from './pages/Friends';
 import CreditCard from './pages/CreditCard';
 import TripDetail from './pages/TripDetail';
+import { useThemeContext } from "./theme/ThemeContextProvider";
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+// const darkTheme = createTheme({
+//   palette: {
+//     mode: 'dark',
+//   },
+// });
+
 
 function App() {
+  const { theme } = useThemeContext();
   return (
-    <div>
+    <ThemeProvider theme={theme}>
+    <CssBaseline />
       <BrowserRouter>
-        <Navbar />
+        {/* <Navbar /> */}
         <div className='flex'>
-          <Sidebar />
+          {/* <Sidebar /> */}
           <Routes>
             <Route path='/' element={<Login />} />
             <Route path='/register' element={<Register />} />
@@ -35,7 +47,7 @@ function App() {
           </Routes>
         </div>
       </BrowserRouter>
-    </div>
+     </ThemeProvider>
   );
 }
 

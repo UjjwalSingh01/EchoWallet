@@ -104,7 +104,7 @@ export default function Profile() {
         display: 'flex',           // Enable flexbox
         justifyContent: 'center',  // Center horizontally
         alignItems: 'center',      // Center vertically
-        height: '105vh',           // Full viewport height
+        height: '110vh',           // Full viewport height
         width: '100vw',            // Full viewport width
         boxSizing: 'border-box',   // Include padding in element's width and height
         padding: 2,                // Optional padding around the card
@@ -115,7 +115,11 @@ export default function Profile() {
           height: '80%',          // Card takes 80% of the parent's height
           display: 'flex',        // Ensure content is centered within the card
           flexDirection: 'column',
-
+          // overflowY: 'auto',
+          // scrollbarWidth: 'none',
+          // '&::-webkit-scrollbar': {
+          //   display: 'none',
+          // },
         }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>

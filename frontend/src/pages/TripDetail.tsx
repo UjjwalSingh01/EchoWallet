@@ -100,8 +100,8 @@ const TripDetail = () => {
           
           <div className='flex flex-col  sm:flex-row justify-evenly'>
             <div className='flex md:flex-row w-full  sm:w-1/2 my-5 justify-center items-center flex-col'>
-              <OutlinedCard />
-              <OutlinedCard />
+              <OutlinedCard heading='Balance' amount={1000} />
+              <OutlinedCard heading='Expenditure' amount={1000} />
             </div>
             <div className='flex flex-col justify-center my-5'>
               <BasicModal name='Add Member' action='Add' />

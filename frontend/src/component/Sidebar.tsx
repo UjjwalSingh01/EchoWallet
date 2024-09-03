@@ -92,7 +92,7 @@ export default function Sidebar() {
 
         <Divider />
         <List>
-          {['Dashboard', 'Transaction', 'Transfer', 'Trips', 'Notification'].map((text, index) => (
+          {['Dashboard', 'Transaction', 'Transfer', 'Trips', 'Notification'].map((text) => (
             <ListItem key={text} disablePadding sx={{ display: 'block' }} onClick={()=>{navigate(`/${text}`)}}>
               <ListItemButton
                 sx={{
@@ -129,7 +129,7 @@ export default function Sidebar() {
         </List>
         <Divider />
         <List>
-          {['Friends'].map((text, index) => (
+          {['Friends'].map((text) => (
             <ListItem key={text} disablePadding sx={{ display: 'block' }} onClick={()=>{navigate(`/${text}`)}}>
               <ListItemButton
                 sx={{

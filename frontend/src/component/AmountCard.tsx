@@ -1,19 +1,70 @@
+// import { useTheme } from '@emotion/react';
+import { Box, Card, CardContent, Typography } from '@mui/material';
 
-interface AmountProps {
-  heading: string, 
-  amount: number
+interface PropsType {
+  heading: string;
+  amount: number;
 }
 
-const AmountCard = (props: AmountProps) => {
+export default function AmountCard({ heading, amount }: PropsType) {
+  // const theme = useTheme();
+
   return (
-    
-    <div className='flex justify-center text-center w-full' >
-      <div className="block w-full p-6 bg-white border border-gray-200 rounded-lg drop-shadow-xl hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-        <h1 className=" text-4xl">{props.heading} :</h1>
-        <h3 className="text-2xl mt-2">₹ {props.amount}</h3>
-      </div>
-    </div>
-  )
+    <Box
+      className="flex justify-center text-center w-full"
+      sx={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          p: { xs: 2, sm: 4, md: 2 }, // Padding adjusted for different screen sizes
+          backgroundColor: 'white',
+          border: '1px solid',
+          borderColor: 'gray.200',
+          borderRadius: 2,
+          width: { xs: '100%', sm: '90%', md: '80%', lg: '100%' }, // Adjust width for different screen sizes
+          margin: { xs: 1, md: 3 },
+          height:200
+        }}
+      >
+        <Card
+          variant="outlined"
+          sx={{
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+            border: 'none',
+          }}
+        >
+          <CardContent>
+            <Typography
+              gutterBottom
+              sx={{
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }, // Adjust font size for different screen sizes
+                textAlign: 'center',
+                color: 'text.secondary',
+                // fontFamily: 'sans-serif'
+              }}
+            >
+              {heading}:
+            </Typography>
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }, // Adjust font size for different screen sizes
+                marginTop: 2,
+                textAlign: 'center',
+              }}
+            >
+              ₹{amount}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+    </Box>
+  );
 }
-
-export default AmountCard
