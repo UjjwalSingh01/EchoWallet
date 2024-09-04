@@ -86,12 +86,12 @@ export const Dashboard = () => {
         }}
       >
         <CardContent>
-          <div className="grid gap-6  lg:grid-cols-3">
+          <div className="grid gap-6 xl:grid-cols-3">
             <AmountCard heading="Wallet" amount={account.balance}/>
             <AmountCard heading="Month Credit" amount={account.currentMonthCredit}/>
             <AmountCard heading="Month Debit" amount={account.currentMonthDebit}/>
           </div>
-          <div className="grid mx-7 gap-10 lg:gap-14 mt-8 lg:mt-20 lg:grid-cols-2">
+          <div className="grid mx-7 gap-10 lg:gap-14 mt-8 lg:mt-20 xl:grid-cols-2">
             <div className="w-full">
               <Barchart dataset={barData} />
             </div>

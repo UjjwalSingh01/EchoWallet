@@ -65,13 +65,23 @@ const Friends = () => {
       }}
     >
       <Card sx={{ 
-          width: { xs: '100%', sm: '90%', md: '80%' }, 
-          height: '80%', 
-          display: 'flex', 
+          width: '80%',
+          height: '80%',
+          display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
+          boxShadow: 6, // Enhanced shadow
+          borderRadius: 3, // Rounded corners
+          bgcolor: 'background.paper',
+          '&:hover': {
+            boxShadow: 12, // Shadow effect on hover
+            transform: 'translateY(-5px)',
+          },
           scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': { display: 'none' },
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
         }}>
         <CardContent>
           <Typography 
@@ -82,7 +92,7 @@ const Friends = () => {
             Friends
           </Typography>
           <Divider />
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 m-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 m-4'>
             {friends.length > 0 ? (
               friends.map((friend, index) => (
                 <FriendCard key={index} data={friend} />

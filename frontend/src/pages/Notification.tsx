@@ -8,21 +8,23 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Divider, useTheme } from '@mui/material';
 
-// Define the type for a notification
 type NotificationType = {
   name: string;
   amount: number;
-  type: string
+  type: string;
 };
 
 export default function Notification() {
+  const theme = useTheme();
   const [notifications, setNotifications] = useState<NotificationType[]>([
     {
-      name:"John Doe",
+      name: "John Doe",
       amount: 500,
-      type:"DEBIT"
-    } , {
+      type: "DEBIT"
+    },
+    {
       name: "John Doe",
       amount: 500,
       type: "CREDIT"
@@ -35,9 +37,9 @@ export default function Notification() {
         const response = await axios.get('http://localhost:8787/api/v1/detail/decode/getnotifications', {
           headers: { "Authorization": localStorage.getItem("token") }
         });
-        
-        setNotifications(response.data.notification); 
-        
+
+        setNotifications(response.data.notification);
+
       } catch (error) {
         console.error("Error in Fetching Notification: ", error);
       }
@@ -49,47 +51,73 @@ export default function Notification() {
   return (
     <Box
       sx={{
-        display: 'flex',           
-        justifyContent: 'center',  
-        alignItems: 'center',      
-        height: '100vh',           
-        width: '100vw',            
-        boxSizing: 'border-box',   
-        padding: 2,                
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        boxSizing: 'border-box',
+        padding: 2,
+        backgroundColor: theme.palette.background.default,
       }}
     >
-      <Card sx={{ 
-          width: '80%',           
-          height: '80%',          
-          display: 'flex',        
-          flexDirection: 'column',
-          overflowY: 'auto',
-          scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-        }}>
-        <CardContent sx={{padding:4}}>
-          <Typography sx={{ fontSize: {xs:30, md:44}, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
+      <Card sx={{
+        width: '80%',
+        height: '80%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto',
+        boxShadow: 6, // Enhanced shadow
+        borderRadius: 3, // Rounded corners
+        bgcolor: 'background.paper',
+        '&:hover': {
+          boxShadow: 12, // Shadow effect on hover
+          transform: 'translateY(-5px)',
+        },
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
+      }}>
+        <CardContent>
+          <Typography sx={{ fontSize: { xs: 30, md: 44 }, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.primary" gutterBottom>
             Notifications
           </Typography>
-          
-          {/* Map through the notifications array */}
+
+          <Divider />
+
           {notifications.map((notification, index) => (
-            <Accordion key={index} defaultExpanded>
+            <Accordion defaultExpanded key={index} sx={{
+              borderRadius: 2,
+              marginBottom: 2,
+              boxShadow: theme.shadows[2],
+              transform: 'translateY(-5px)',
+              transition: 'transform 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-10px)',
+              },
+            }}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls={`panel${index}-content`}
                 id={`panel${index}-header`}
+                sx={{
+                  backgroundColor: notification.type === "CREDIT" ? theme.palette.success.light : theme.palette.error.light,
+                  borderRadius: 2,
+                  '&:hover': {
+                    backgroundColor: notification.type === "CREDIT" ? theme.palette.success.main : theme.palette.error.main,
+                  },
+                }}
               >
                 <Typography>
                   {notification.type === "CREDIT" ? "Amount Credited" : "Amount Debited"}
                 </Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails sx={{ padding: 2 }}>
                 <Typography>
-                  {notification.type === "CREDIT" 
-                    ? `${notification.name} has sent you ₹${notification.amount}` 
+                  {notification.type === "CREDIT"
+                    ? `${notification.name} has sent you ₹${notification.amount}`
                     : `You sent ${notification.name} ₹${notification.amount}`
                   }
                 </Typography>

@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import TripCard from '../component/TripCard';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -8,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import BasicModal from '../component/BasicModal';
+import TripCard from '../component/TripCard';
 
 interface GroupDetails {
   id: string;
@@ -55,47 +55,56 @@ const Trips = () => {
   return (
     <Box
       sx={{
-        display: 'flex',           // Enable flexbox
-        justifyContent: 'center',  // Center horizontally
-        alignItems: 'center',      // Center vertically
-        height: '100vh',           // Full viewport height
-        width: '100vw',            // Full viewport width
-        boxSizing: 'border-box',   // Include padding in element's width and height
-        padding: 2,                // Optional padding around the card
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        boxSizing: 'border-box',
+        padding: 3,
+        // background: 'linear-gradient(135deg, #e0f7fa 30%, #b2dfdb 100%)', // Added gradient background
       }}
     >
       <Card
         sx={{
-          width: '80%',           // Card takes 80% of the parent's width
-          height: '80%',          // Card takes 80% of the parent's height
-          display: 'flex',        // Ensure content is centered within the card
+          width: '80%',
+          height: '80%',
+          display: 'flex',
           flexDirection: 'column',
-          overflowY: 'auto',      // Enable vertical scrolling
-          scrollbarWidth: 'none', // Hide scrollbar (Firefox)
-          '&::-webkit-scrollbar': {
-            display: 'none',      // Hide scrollbar (WebKit - Chrome, Safari)
+          overflowY: 'auto',
+          boxShadow: 6, // Enhanced shadow
+          borderRadius: 3, // Rounded corners
+          bgcolor: 'background.paper',
+          '&:hover': {
+            boxShadow: 12, // Shadow effect on hover
+            transform: 'translateY(-5px)',
           },
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
         }}
       >
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
-            Trips
+            Your Trips
           </Typography>
-          <Divider />
+          <Divider sx={{ marginBottom: 3 }} />
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
-              marginTop: 5,
+              marginBottom: 4,
             }}
           >
             <BasicModal name='Add Group' action='Add' />
           </Box>
           {
-            groups.map((group, index) => (
-              // <div className='flex justify-center items-center w-full'>
-                <Link to={`/Trips/${index}`} state={group.id}><TripCard key={group.id} data={group} /></Link>
-              // </div>
+            groups.map((group) => (
+              <Link to={`/Trips/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
+                <TripCard key={group.id} data={group} />
+              </Link>
             ))
           }
         </CardContent>

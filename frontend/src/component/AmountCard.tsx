@@ -1,5 +1,5 @@
-// import { useTheme } from '@emotion/react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 interface PropsType {
   heading: string;
@@ -7,66 +7,65 @@ interface PropsType {
 }
 
 export default function AmountCard({ heading, amount }: PropsType) {
-  // const theme = useTheme();
-
+  const theme = useTheme();
   return (
     <Box
-      className="flex justify-center text-center w-full"
       sx={{
-        width: '100%',
         display: 'flex',
         justifyContent: 'center',
+        alignItems: 'center', // Center vertically
+        width: '100%',
+        height: '100%', // Ensure the Box takes full height
         textAlign: 'center',
-        // boxShadow:4
+        padding: { xs: 2, sm: 4, md: 2 }, // Padding around the outer Box
       }}
     >
-      <Box
+      <Card
         sx={{
-          p: { xs: 2, sm: 4, md: 2 }, // Padding adjusted for different screen sizes
-          backgroundColor: 'white',
-          border: '1px solid',
-          borderColor: 'gray.200',
+          width: { xs: '100%', sm: '90%', md: '80%', lg: '80%' },
+          maxWidth: 600, // Optional max width to prevent the card from getting too wide
           borderRadius: 2,
-          width: { xs: '100%', sm: '90%', md: '80%', lg: '100%' }, // Adjust width for different screen sizes
-          margin: { xs: 1, md: 3 },
-          height:{xs:150, lg:200},
-          
+          boxShadow: 6, // Adding shadow for depth
+          transition: 'transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease',
+          border: `2px solid ${theme.palette.background.default}`,
+          '&:hover': {
+            transform: 'translateY(-5px)',
+            boxShadow: `0 10px 20px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.1)'}`,
+            borderColor: theme.palette.primary.main,
+          },
+          display: 'flex',
+          flexDirection: 'column', // Ensure the content inside the card is vertically stacked
+          justifyContent: 'center', // Center content vertically inside the card
+          alignItems: 'center', // Center content horizontally inside the card
+          backgroundColor: 'background.paper',
+          padding: 2,
         }}
       >
-        <Card
-          variant="outlined"
-          sx={{
-            backgroundColor: 'transparent',
-            boxShadow: 'none',
-            border: 'none',
-          }}
-        >
-          <CardContent>
-            <Typography
-              gutterBottom
-              sx={{
-                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }, // Adjust font size for different screen sizes
-                textAlign: 'center',
-                color: 'text.secondary',
-                // fontFamily: 'sans-serif'
-              }}
-            >
-              {heading}:
-            </Typography>
-            <Typography
-              variant="h5"
-              component="div"
-              sx={{
-                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }, // Adjust font size for different screen sizes
-                marginTop: 2,
-                textAlign: 'center',
-              }}
-            >
-              ₹{amount}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
+        <CardContent sx={{ width: '100%' }}>
+          <Typography
+            gutterBottom
+            sx={{
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+              textAlign: 'center',
+              color: 'text.secondary',
+            }}
+          >
+            {heading}:
+          </Typography>
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{
+              fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' },
+              marginTop: 2,
+              textAlign: 'center',
+              color: 'text.primary',
+            }}
+          >
+            ₹{amount}
+          </Typography>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

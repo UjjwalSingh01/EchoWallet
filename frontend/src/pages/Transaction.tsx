@@ -62,11 +62,23 @@ const Transaction = () => {
       }}
     >
       <Card sx={{ 
-          width: '80%',           
-          height: '80%',          
-          display: 'flex',        
+          width: '80%',
+          height: '80%',
+          display: 'flex',
           flexDirection: 'column',
-          marginRight:3
+          overflowY: 'auto',
+          boxShadow: 6, // Enhanced shadow
+          borderRadius: 3, // Rounded corners
+          bgcolor: 'background.paper',
+          '&:hover': {
+            boxShadow: 12, // Shadow effect on hover
+            transform: 'translateY(-5px)',
+          },
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
         }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>

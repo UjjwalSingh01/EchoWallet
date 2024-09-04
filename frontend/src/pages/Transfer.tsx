@@ -81,8 +81,19 @@ export default function Transfer() {
         height: '80%',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-        borderRadius: 2
+        overflowY: 'auto',
+        boxShadow: 6, // Enhanced shadow
+        borderRadius: 3, // Rounded corners
+        bgcolor: 'background.paper',
+        '&:hover': {
+          boxShadow: 12, // Shadow effect on hover
+          transform: 'translateY(-5px)',
+        },
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
       }}>
         <CardContent sx={{ padding: '24px' }}>
           <Typography
