@@ -29,9 +29,9 @@ function App() {
     <ThemeProvider theme={theme}>
     <CssBaseline />
       <BrowserRouter>
-        {/* <Navbar /> */}
+        <Navbar />
         <div className='flex'>
-          {/* <Sidebar /> */}
+          <Sidebar />
           <Routes>
             <Route path='/' element={<Login />} />
             <Route path='/register' element={<Register />} />

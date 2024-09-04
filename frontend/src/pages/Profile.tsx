@@ -10,7 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import { Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import BasicModal from '../component/ProfileModal';
+import BasicModal from '../component/BasicModal';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -71,7 +71,7 @@ export default function Profile() {
         headers: { "Authorization": localStorage.getItem("token") },
       })
 
-      // setUser(response.data.user)
+      setUser(response.data.user)
 
     } catch (error) {
       
@@ -115,11 +115,11 @@ export default function Profile() {
           height: '80%',          // Card takes 80% of the parent's height
           display: 'flex',        // Ensure content is centered within the card
           flexDirection: 'column',
-          // overflowY: 'auto',
-          // scrollbarWidth: 'none',
-          // '&::-webkit-scrollbar': {
-          //   display: 'none',
-          // },
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
@@ -141,26 +141,25 @@ export default function Profile() {
               <VisuallyHiddenInput type="file" />
             </Button>
           </div>
-          <div className='flex gap-6 justify-around mx-20'>
-            <TextField id="outlined-basic" label='First Name' onChange={(e) => {user.firstname = e.target.value}} defaultValue={user.firstname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
-            <TextField id="outlined-basic" label="Last Name" onChange={(e) => {user.lastname = e.target.value}} defaultValue={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width:'40%'}} />
+          <div className='flex flex-col md:flex-row md:gap-6 justify-around mx-6 lg:mx-20'>
+            <TextField id="outlined-basic" label='First Name' onChange={(e) => {user.firstname = e.target.value}} defaultValue={user.firstname} variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
+            <TextField id="outlined-basic" label="Last Name" onChange={(e) => {user.lastname = e.target.value}} defaultValue={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
           </div>
-          <div className='flex justify-center items-center'>
-            <TextField id="outlined-basic" label="Email" onChange={(e) => {user.email = e.target.value}} defaultValue={user.email} variant="outlined"  sx={{ marginBottom: 5, width:'35%',}} />
+          <div className='flex justify-center items-center mx-6 md:mx-28'>
+            <TextField id="outlined-basic" label="Email" onChange={(e) => {user.email = e.target.value}} defaultValue={user.email} variant="outlined"  sx={{ marginBottom: 5, width:{xs:'100%', lg:'35%'}}} />
           </div>
-          <div className='flex justify-around items-center mb-10'>
+          <div className='flex flex-col md:flex-row justify-around items-center mb-10'>
             <Button onClick={() => {handleUpdate()}} variant="outlined">Update</Button>
             <BasicModal name="Add Balance" action="Add" />
-            {/* <Button variant="outlined">Reset Pin</Button> */}
             <BasicModal name="Reset Pin" action="Reset" />
           </div>
           <Divider />
           <Typography sx={{ fontSize: 24, margin:3, }} color="text.secondary" gutterBottom>
             Reset Password
           </Typography>
-          <div className='flex gap-6 justify-around mx-20'>
-            <TextField onChange={(e) => {setOldPassword(e.target.value)}} id="outlined-basic" label="Old Password" variant="outlined"  sx={{ marginBottom: 5, width:'50%'}} />
-            <TextField onChange={(e) => {setNewPassword(e.target.value)}} id="outlined-basic" label="New Password" variant="outlined"  sx={{ marginBottom: 5, width:'50%'}} />
+          <div className='flex flex-col md:flex-row md:gap-6 justify-around mx-6 lg:mx-20'>
+            <TextField onChange={(e) => {setOldPassword(e.target.value)}} id="outlined-basic" label="Old Password" variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'50%'}}} />
+            <TextField onChange={(e) => {setNewPassword(e.target.value)}} id="outlined-basic" label="New Password" variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'50%'}}} />
           </div>
           <div className='flex justify-center items-center'>
             <Button onClick={()=>{resetPass()}} variant="outlined">Reset</Button>

@@ -3,7 +3,13 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import image from '../assets/Lofi Sunrise ♡.jpeg'
+import { z } from 'zod';
 
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
 
 export default function Login() {
 
@@ -13,10 +19,12 @@ export default function Login() {
 
   async function handleLogin() {
     try {
+      const parseData = loginSchema.parse({email, password})
+
       const response = await axios.get('http://localhost:8787/api/v1/user/login', {
         params: {
-          email: email,
-          password: password
+          email: parseData.email,
+          password: parseData.password
         }
       })
 
@@ -25,7 +33,11 @@ export default function Login() {
       navigate('/Dashboard')
 
     } catch (error) {
-      console.error("Error in Login: " + error)
+      if (error instanceof z.ZodError) {
+        //
+      } else {
+        console.error("Error in Login: ",  error)
+      }
     }
   }
 

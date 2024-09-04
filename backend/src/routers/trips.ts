@@ -277,8 +277,8 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
 
 interface AddGroupDetail {
     title: string,
-    description?: string,
-    members: string[]
+    description: string,
+    // members: string[]
 }
 
 groupRouter.post('/decode/add-group', async(c) => {
@@ -297,18 +297,27 @@ groupRouter.post('/decode/add-group', async(c) => {
             }
         })
 
-        detail.members.push(userId)
-
-        detail.members.map(async (m) => {
-            await prisma.groupMember.create({
-                data:{
-                    groupId: createGroup.id,
-                    userId: m,
-                    balance: 0,
-                    totalExpenditure: 0
-                }
-            })
+        await prisma.groupMember.create({
+            data:{
+                groupId: createGroup.id,
+                userId: userId,
+                balance: 0,
+                totalExpenditure: 0
+            }
         })
+
+        // detail.members.push(userId)
+
+        // detail.members.map(async (m) => {
+        //     await prisma.groupMember.create({
+        //         data:{
+        //             groupId: createGroup.id,
+        //             userId: m,
+        //             balance: 0,
+        //             totalExpenditure: 0
+        //         }
+        //     })
+        // })
 
         return c.json({
             message: "Group Added Successfully"

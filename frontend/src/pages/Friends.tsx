@@ -7,7 +7,7 @@ import FriendCard from '../component/FriendCard';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-interface FriendDetail{ 
+interface FriendDetail { 
   id: string,
   firstname: string,
   lastname?: string 
@@ -16,24 +16,24 @@ interface FriendDetail{
 const Friends = () => {
   const [friends, setFriends] = useState<FriendDetail[]>([
     {
-      id: "1",
-      firstname: "John",
-      lastname: "Doe"
+      id: '1',
+      firstname: 'John',
+      lastname: 'Doe'
     }, 
     {
-      id: "2",
-      firstname: "Jane",
-      lastname: "Doe"
-    } ,
+      id: '1',
+      firstname: 'John',
+      lastname: 'Doe'
+    },
     {
-      id: "1",
-      firstname: "John",
-      lastname: "Doe"
-    }, 
+      id: '1',
+      firstname: 'John',
+      lastname: 'Doe'
+    },
     {
-      id: "2",
-      firstname: "Jane",
-      lastname: "Doe"
+      id: '1',
+      firstname: 'John',
+      lastname: 'Doe'
     }
   ]);
 
@@ -43,9 +43,7 @@ const Friends = () => {
         const response = await axios.get('http://localhost:8787/api/v1/detail/decode/getfriends', {
           headers: { "Authorization": localStorage.getItem("token") }
         });
-        
         setFriends(response.data.friends); 
-        
       } catch (error) {
         console.error("Error in Fetching Friends: ", error);
       }
@@ -57,33 +55,35 @@ const Friends = () => {
   return (
     <Box
       sx={{
-        display: 'flex',           
-        justifyContent: 'center',  
-        alignItems: 'center',      
-        height: '100vh',           
-        width: '100vw',            
-        boxSizing: 'border-box',   
-        padding: 2,                
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        boxSizing: 'border-box',
+        padding: 2,
       }}
     >
       <Card sx={{ 
-          width: '80%',           
-          height: '80%',          
-          display: 'flex',        
+          width: { xs: '100%', sm: '90%', md: '80%' }, 
+          height: '80%', 
+          display: 'flex', 
           flexDirection: 'column',
           overflowY: 'auto',
           scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
+          '&::-webkit-scrollbar': { display: 'none' },
         }}>
         <CardContent>
-          <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
+          <Typography 
+            sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} 
+            color="text.secondary" 
+            gutterBottom
+          >
             Friends
           </Typography>
           <Divider />
-          <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 m-8'>
-          {friends.length > 0 ? (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 m-4'>
+            {friends.length > 0 ? (
               friends.map((friend, index) => (
                 <FriendCard key={index} data={friend} />
               ))

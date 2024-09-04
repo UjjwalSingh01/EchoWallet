@@ -1,13 +1,5 @@
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Typography } from '@mui/material';
-
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -19,33 +11,29 @@ interface Dataset {
 }
 
 export default function InteractivePieChart({ dataset }: { dataset: Dataset }) {
-  const initialData = [
+  const data = [
     { name: 'Food', value: dataset.foodExpenditure },
     { name: 'Shopping', value: dataset.shoppingExpenditure },
     { name: 'Travel', value: dataset.travelExpenditure },
     { name: 'Others', value: dataset.otherExpenditure },
   ];
-  
-  // const [data, setData] = useState(initialData);
-  const data = initialData
 
   return (
     <Box
       sx={{
         backgroundColor: '#fff',
-        padding: 4,
+        padding: 2,
         borderRadius: 4,
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
         textAlign: 'center',
-        maxWidth: 500,
-        margin: '24px auto',
+        width: '100%',
       }}
     >
       <Typography variant="h5" sx={{ marginBottom: 2, fontWeight: 'bold' }}>
         Expenditure Distribution
       </Typography>
 
-      <ResponsiveContainer height={400}>
+      <ResponsiveContainer width="100%" height={400}>
         <PieChart>
           <Pie
             data={data}

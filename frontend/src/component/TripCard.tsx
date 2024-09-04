@@ -14,7 +14,7 @@ interface GroupDetails {
 export default function TripCard({data} : {data: GroupDetails}) {
 
   return (
-      <Card sx={{ display: 'flex', width: 'full', margin:5 }}>
+      <Card sx={{ display: 'flex', width: 'full', marginTop:5, marginBottom:5, marginLeft:10, marginRight:10 }}>
         <CardMedia
           component="img"
           sx={{ width: 160, display: { xs: 'none', sm: 'block' } }}

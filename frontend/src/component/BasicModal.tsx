@@ -31,12 +31,13 @@ export default function BasicModal(props: data) {
   const [newPin, setNewPin] = React.useState("");
   const [balance, setBalance] = React.useState(0)
 
+  const [title, setTitle] = React.useState("")
+  const [description, setDescription] = React.useState("")
+
   async function handleClose(action: string) {
     
     try {
-      // send money route
       if(action === "Reset"){
-        // reset pin
         const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpin', 
           {
             oldPin,
@@ -49,11 +50,23 @@ export default function BasicModal(props: data) {
         console.log(response.data.message)
       }
 
-      else {
+      else if(action === 'Add') {
         // add balance
         const response = await axios.post('http://localhost:8787/api/v1/user/decode/addbalance', 
           {
             balance
+          } , {
+            headers: { "Authorization": localStorage.getItem("token") },
+          }
+        )
+
+        console.log(response.data.message)
+      }
+      else {
+        const response = await axios.post('http://localhost:8787/api/v1/user/decode/add-group', 
+          {
+            title, 
+            description
           } , {
             headers: { "Authorization": localStorage.getItem("token") },
           }
@@ -71,7 +84,7 @@ export default function BasicModal(props: data) {
 
   return (
     <div>
-      <Button sx={{ margin: 2 }} variant="outlined" onClick={handleOpen}>{props.name}</Button>
+      <Button sx={{ margin: 2 }} variant= {props.name==='Add Group' ? 'contained' : "outlined"} onClick={handleOpen}>{props.name}</Button>
       <Modal
         open={open}
         onClose={handleClose}
@@ -95,11 +108,9 @@ export default function BasicModal(props: data) {
                       setBalance(accBalance);
                     }}
                   />
-                  <Button onClick={() => {handleClose(props.action)}} sx={{marginBottom:2, marginTop:3}} variant="outlined">
-                      {props.action}
-                  </Button>
                 </>  
-              ) : (
+              ) :
+              props.name === 'Reset Pin' ? (
                 <>
                   <TextField
                     sx={{ width:"100%" }}
@@ -115,14 +126,46 @@ export default function BasicModal(props: data) {
                     variant="outlined"
                     onChange={(e) => { setNewPin(e.target.value) }}
                   />
-                  <Button onClick={() => {handleClose(props.action)}} sx={{marginBottom:2, marginTop:3}} variant="outlined">
-                      {props.action}
-                  </Button>
+                  
+                </>  
+              ) : (
+                <>
+                  <Typography sx={{marginBottom:2, marginTop:2}} id="modal-modal-title" variant="h6" component="h2">
+                    Title
+                  </Typography>
+                  <TextField
+                    id="outlined-textarea"
+                    placeholder="Title"
+                    multiline
+                    variant="outlined"
+                    onChange={(e) => { setTitle(e.target.value) }}
+                  />
+                  <Typography sx={{marginTop:3}} id="modal-modal-title" variant="h6" component="h2">
+                    Description
+                  </Typography>
+                  <TextField
+                    sx={{ width:"100%", marginTop:2 }}
+                    id="outlined-textarea"
+                    placeholder="Description"
+                    multiline
+                    variant="outlined"
+                    onChange={(e) => { setDescription(e.target.value) }}
+                  />
+                  
                 </>  
               )
             }
+            <Button onClick={() => {handleClose(props.action)}} sx={{marginBottom:2, marginTop:3, width:"100%"}} variant="outlined">
+              {props.action}
+            </Button>
         </Box>
       </Modal>
     </div>
   );
 }
+
+
+
+// Add Group .. title & description 
+// Add Member .. select m search & add members
+// Add Grp Tn Detail .. description & amount & groupId & shares among members

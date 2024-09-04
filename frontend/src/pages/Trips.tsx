@@ -4,8 +4,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Divider } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import BasicModal from '../component/BasicModal';
 
 interface GroupDetails {
   id: string;
@@ -32,6 +34,23 @@ const Trips = () => {
       balance: -1000,
     },
   ]);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/get-group', {
+          headers: { "Authorization": localStorage.getItem("token") }
+        });
+        
+        setGroups(response.data.groups); 
+        
+      } catch (error) {
+        console.error("Error in Fetching Groups: ", error);
+      }
+    };
+
+    fetchDetails();
+  }, []);
 
   return (
     <Box
@@ -63,6 +82,15 @@ const Trips = () => {
             Trips
           </Typography>
           <Divider />
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: 5,
+            }}
+          >
+            <BasicModal name='Add Group' action='Add' />
+          </Box>
           {
             groups.map((group, index) => (
               // <div className='flex justify-center items-center w-full'>

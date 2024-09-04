@@ -70,7 +70,7 @@ export default function Notification() {
           },
         }}>
         <CardContent sx={{padding:4}}>
-          <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
+          <Typography sx={{ fontSize: {xs:30, md:44}, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
             Notifications
           </Typography>
           

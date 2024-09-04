@@ -17,6 +17,7 @@ export default function AmountCard({ heading, amount }: PropsType) {
         display: 'flex',
         justifyContent: 'center',
         textAlign: 'center',
+        // boxShadow:4
       }}
     >
       <Box
@@ -28,7 +29,8 @@ export default function AmountCard({ heading, amount }: PropsType) {
           borderRadius: 2,
           width: { xs: '100%', sm: '90%', md: '80%', lg: '100%' }, // Adjust width for different screen sizes
           margin: { xs: 1, md: 3 },
-          height:200
+          height:{xs:150, lg:200},
+          
         }}
       >
         <Card

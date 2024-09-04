@@ -3,11 +3,12 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Button, Divider } from '@mui/material';
+import { Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import OutlinedCard from '../component/GrpCard';
-import BasicModal from '../component/ProfileModal';
+import AddMemberModel from '../component/AddMemberModel';
+import AddGroupExpenseModal from '../component/AddGroupExpenseModal';
 
 interface TransactionDetails {
   name: string;
@@ -17,22 +18,42 @@ interface TransactionDetails {
   amount: number;
 }
 
+export interface MembersDetails {
+  id: string,
+  name: string
+}
+
 const TripDetail = () => {
   const location = useLocation();
   const id = location.state;
+
+  const [members, setMembers] = useState<MembersDetails[]>([
+    {
+      id: '1',
+      name: 'John Doe'
+    } , 
+    {
+      id: '2',
+      name: 'Jane Edo'
+    } ,
+    {
+      id: '3',
+      name: 'Anje Ode'
+    }
+  ])
 
   const [groupDetail, setGroupDetail] = useState<TransactionDetails[]>([
     {
       name:'John Doe',
       paidBy: 'Doe John',
-      date: '24/09/24',
+      date: 'Wed, Oct 25, 8:30 AM',
       share: 200,
       amount: 1000
     } ,
     {
       name:'John Doe',
       paidBy: 'Doe John',
-      date: '24/09/24',
+      date: 'Wed, Oct 25, 8:30 AM',
       share: 200,
       amount: 1000
     }
@@ -46,6 +67,7 @@ const TripDetail = () => {
         });
 
         setGroupDetail(response.data.TransactionDetails);
+        setMembers(response.data.members)
 
       } catch (error) {
         console.error("Error in Fetching Details: ", error);
@@ -104,8 +126,8 @@ const TripDetail = () => {
               <OutlinedCard heading='Expenditure' amount={1000} />
             </div>
             <div className='flex flex-col justify-center my-5'>
-              <BasicModal name='Add Member' action='Add' />
-              <Button sx={{ margin: 2 }} variant="contained">Add Expense</Button>
+              <AddMemberModel members={members} setMembers={setMembers} />
+              <AddGroupExpenseModal members={members} groupId={id} />
             </div>
           </div>
           

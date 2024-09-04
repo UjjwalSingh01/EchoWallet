@@ -3,6 +3,15 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import image from '../assets/Lofi Sunrise ♡.jpeg'
+import { z } from 'zod'
+
+
+const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  firstname: z.string().min(2, 'Name Must Be at least 2 Characters long'),
+  pin: z.string().length(6, "Pin Must be exactly 6 characters long")
+})
 
 export default function Register() {
 
@@ -11,18 +20,25 @@ export default function Register() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [pin, setPin] = useState('')
-  // const [pin, setPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
 
   const navigate = useNavigate()
 
   async function handleRegister() {
     try {
+
+      if(pin != confirmPin){
+
+      }
+
+      const parsedData = registerSchema.parse({ email, password, firstname, pin })
+
       const response = await axios.post('http://localhost:8787/api/v1/user/register', {
-        firstname: firstname,
+        firstname: parsedData.firstname,
         lastname: lastname,
-        email: email,
-        password: password,
-        pin: pin
+        email: parsedData.email,
+        password: parsedData.password,
+        pin: parsedData.pin
       })
 
       localStorage.setItem("token", response.data.token)
@@ -30,7 +46,12 @@ export default function Register() {
       navigate('/Dashboard')
 
     } catch (error) {
-      console.error("Error in Register: ", error);
+      if (error instanceof z.ZodError) {
+      //
+      }
+      else {
+        console.error("Error in Login:", error);
+      }
     }
   }
 
@@ -71,7 +92,7 @@ export default function Register() {
                 </div>
                 <div>
                   <label htmlFor="Re-Enter Pin" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Re-Enter Pin</label>
-                  <input type="Re-Enter Pin" name="Re-Enter Pin" id="Re-Enter Pin" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                  <input onChange={(e)=>{setConfirmPin(e.target.value)}} type="Re-Enter Pin" name="Re-Enter Pin" id="Re-Enter Pin" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
                 </div>
               </div>
               <div className="flex items-center justify-between">
