@@ -158,6 +158,48 @@ detailRouter.post('/decode/addfriend', async (c) => {
 
 
 
+detailRouter.post('/decode/removefriend', async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const id: string = await c.req.json()
+        const userId = c.get('userId')
+
+        const response = await prisma.friend.findFirst({
+            where:{
+                friendId: id
+            }
+        })
+
+        if(!response){
+            return c.json({
+                error: "Is Not A Friend"
+            }, 400)
+        }
+
+        await prisma.friend.create({
+            data:{
+                userId: userId,
+                friendId: id
+            }
+        })
+
+        return c.json({
+            message: "Friend Removed Successfully"
+        })
+
+    } catch (error) {
+        console.error("Server-Side Error in Adding Friends: ", error);
+        return c.json({ 
+            error: "Server-Side Error while adding friend." 
+        }, 500);
+    }
+})
+
+
+
 detailRouter.get('/decode/dashboardDetails', async (c) => {
     const prisma = new PrismaClient({
         datasources: {
