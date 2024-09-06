@@ -1,17 +1,14 @@
 import { Hono } from "hono";
 import bcrypt from 'bcryptjs';
-import zod from 'zod'
-import { decode, sign, verify } from 'hono/jwt'
+import { sign, verify } from 'hono/jwt'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import {
     getCookie,
-    getSignedCookie,
     setCookie,
-    setSignedCookie,
     deleteCookie,
 } from 'hono/cookie'
-import { RegisterSchema, RegisterType, ResetPasswordType, ResetPinSchema, ResetPinType, SignInSchema, SignInType } from "../schemas";
+import { RegisterSchema, RegisterType, ResetPasswordSchema, ResetPasswordType, ResetPinSchema, ResetPinType, SignInSchema, SignInType } from "../schemas";
 
 
 export const userRouter = new Hono<{
@@ -63,6 +60,7 @@ userRouter.post('/register', async (c) => {
         // Hash the password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(detail.password, saltRounds);
+        const hashedPin = await bcrypt.hash(detail.pin, saltRounds);
 
         // Create the new user
         const user = await prisma.user.create({
@@ -71,7 +69,7 @@ userRouter.post('/register', async (c) => {
                 lastname: detail.lastname || null, // Handle optional last name
                 email: detail.email,
                 password: hashedPassword,
-                pin: detail.pin
+                pin: hashedPin
             },
         });
 
@@ -325,7 +323,8 @@ userRouter.post('/decode/resetpin', async(c) =>{
         const zodResult = await ResetPinSchema.safeParse(detail);
         if(!zodResult.success){
             return c.json({
-                error: 'Pin Format Incorrect'
+                message: 'Pin Format Incorrect',
+                errors: zodResult.error.errors,
             }, 401)
         }
 
@@ -346,26 +345,29 @@ userRouter.post('/decode/resetpin', async(c) =>{
             }, 404)
         }
 
-        if(response.pin === detail.oldPin) {
-            await prisma.user.update({
-                where:{
-                    id: userId,
-                }, 
-                data: {
-                    password: detail.newPin
-                }
+        const isMatch = await bcrypt.compare(detail.oldPin, response.pin)
+        if(!isMatch){
+            c.status(401)
+            return c.json({
+                message: "Invalid Pin"
             })
+        }
 
-            return c.json({
-                message: "Pin Reset Successful"
-            })
-    
-        }
-        else {
-            return c.json({
-                error: "Invalid Pin"
-            }, 403)
-        }
+        const saltRounds = 10;
+        const hashedPin = await bcrypt.hash(detail.newPin, saltRounds);
+        
+        await prisma.user.update({
+            where:{
+                id: userId,
+            }, 
+            data: {
+                password: hashedPin
+            }
+        })
+
+        return c.json({
+            message: "Pin Reset Successful"
+        })
     
         
     } catch(error){
@@ -431,7 +433,7 @@ userRouter.post('/decode/reset-pass', async(c) =>{
 
     try {
         const detail: ResetPasswordType = await c.req.json();
-        const zodResult = RegisterSchema.safeParse(detail)
+        const zodResult = ResetPasswordSchema.safeParse(detail)
         if(!zodResult.success){
             c.status(401);
             return c.json({

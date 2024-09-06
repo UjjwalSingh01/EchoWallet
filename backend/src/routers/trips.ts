@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import {  PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { AddGroupTransactionSchema, AddGroupTransactionType } from "../schemas";
+import bcrypt from 'bcryptjs';
 
 export const groupRouter = new Hono<{
     Bindings: {
@@ -248,6 +249,29 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
         // if (details.amount <= 0) {
         //     return c.json({ error: 'Amount must be greater than zero' }, 400);
         // }
+
+        const dbPin = await prisma.user.findFirst({
+            where:{
+                id:userId
+            },
+            select:{
+                pin: true
+            }
+        })
+
+        if(!dbPin){
+            return c.json({
+                error: "Bad Request"
+            }, 400)
+        }
+
+        const isMatch = await bcrypt.compare(details.pin, dbPin.pin)
+        if(!isMatch){
+            c.status(401)
+            return c.json({
+                message: "Invalid Pin"
+            })
+        }
 
         const transaction = await prisma.groupTransaction.create({
             data: {

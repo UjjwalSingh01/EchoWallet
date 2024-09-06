@@ -46,9 +46,9 @@ const TransactionCategory = z.enum(['FOOD', 'SHOPPING', 'TRAVEL', 'OTHER']);
 const TransferSchema = z.object({
     to: z.string(),
     amount: z.number().positive().int().min(1, 'Amount must be a positive number'),
-    pin: z.string().length(6, 'Pin Must Be of 6 characters'),
     category: TransactionCategory,
-    description: z.string().optional()
+    description: z.string().optional(),
+    pin: z.string().length(6, 'Pin must be exactly 6 digits').regex(/^\d{6}$/, 'Pin must only contain digits'),
 })
 
 type TransferType = z.infer<typeof TransferSchema>
@@ -56,6 +56,7 @@ type TransferType = z.infer<typeof TransferSchema>
 
 // Group Transfer
 const AddGroupTransactionSchema = z.object({
+    pin: z.string().length(6, 'Pin must be exactly 6 digits').regex(/^\d{6}$/, 'Pin must only contain digits'),
     description: z.string().nonempty("Description is required"),
     amount: z.number().positive("Amount must be positive"),
     groupId: z.string().nonempty("Group ID is required"),

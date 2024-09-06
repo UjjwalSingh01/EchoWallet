@@ -3,6 +3,7 @@ import { PrismaClient, TransactionCategory } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { verify } from 'hono/jwt'
 import { TransferSchema, TransferType } from "../schemas";
+import bcrypt from 'bcryptjs';
 
 export const transactionRouter = new Hono<{
     Bindings: {
@@ -154,12 +155,22 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 },
                 select:{
                     firstname: true,
-                    lastname: true
+                    lastname: true,
+                    pin: true
                 }
             })
 
+
             if (!from) {
                 return c.json({ message: "Sender User Does Not Exist" }, 404);
+            }
+
+            const isMatch = await bcrypt.compare(detail.pin, from.pin)
+            if(!isMatch){
+                c.status(401)
+                return c.json({
+                    message: "Invalid Pin"
+                })
             }
 
             const userAccount = await tx.account.findFirst({
@@ -280,7 +291,6 @@ transactionRouter.post('/decode/transaction', async(c) => {
             error:"Server-Side Error In Transfer"
         }, 500)
     }
-
     
 })
 
