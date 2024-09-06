@@ -11,6 +11,7 @@ import {
     setSignedCookie,
     deleteCookie,
 } from 'hono/cookie'
+import { RegisterSchema, RegisterType, ResetPasswordType, ResetPinSchema, ResetPinType, SignInSchema, SignInType } from "../schemas";
 
 
 export const userRouter = new Hono<{
@@ -24,16 +25,6 @@ export const userRouter = new Hono<{
 }>();
 
 
-const emailSchema = zod.string().email();
-
-
-type SignUpDetail = {
-    firstname: string,
-    lastname: string | ""
-    email: string,
-    password: string
-    pin: string
-}
 
 userRouter.post('/register', async (c) => {
 
@@ -42,24 +33,16 @@ userRouter.post('/register', async (c) => {
     }).$extends(withAccelerate())
 
     try {
-        const detail: SignUpDetail = await c.req.json();
+        const detail: RegisterType = await c.req.json();
         console.log(detail);
 
         // Validate email using Zod schema
-        const zodResult = emailSchema.safeParse(detail.email);
+        const zodResult = RegisterSchema.safeParse(detail);
         if (!zodResult.success) {
             c.status(401);
             return c.json({
                 message: "Invalid email format",
                 errors: zodResult.error.errors,
-            });
-        }
-
-        // Check for empty fields
-        if (detail.password === "" || detail.firstname === "") {
-            c.status(401);
-            return c.json({
-                message: "Invalid credentials: firstname and password are required",
             });
         }
 
@@ -127,12 +110,7 @@ userRouter.post('/register', async (c) => {
 })
 
 
-interface SigninDetail {
-    email: string,
-    password: string
-}
-
-userRouter.get('/login', async (c) => {
+userRouter.post('/login', async (c) => {
     
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
@@ -140,14 +118,14 @@ userRouter.get('/login', async (c) => {
 
     try {
 
-        const detail: Record<string,string> = c.req.query();
-        const zodResult = emailSchema.safeParse(detail.email)
-
+        const detail: SignInType = await c.req.json();
+        const zodResult = SignInSchema.safeParse(detail)
         if(!zodResult.success){
-            c.status(401)
+            c.status(401);
             return c.json({
-                message: zodResult
-            })
+                message: "Invalid email format",
+                errors: zodResult.error.errors,
+            });
         }
 
         const response = await prisma.user.findUnique({
@@ -214,7 +192,7 @@ userRouter.get('/decode/users' , async(c) => {
     }).$extends(withAccelerate())
 
     try {
-        const userId = c.get('userId')
+        // const userId = c.get('userId')
         const searchTerm: string = c.req.query('searchTerm') || ""
 
         const users = await prisma.user.findMany({
@@ -336,10 +314,6 @@ userRouter.post('/decode/addbalance', async(c) =>{
 })
 
 
-interface ResetPinDetail {
-    oldPin: string,
-    newPin: string
-}
 
 userRouter.post('/decode/resetpin', async(c) =>{
     const prisma = new PrismaClient({
@@ -347,7 +321,13 @@ userRouter.post('/decode/resetpin', async(c) =>{
     }).$extends(withAccelerate())
 
     try {
-        const detail: ResetPinDetail = await c.req.json();
+        const detail: ResetPinType = await c.req.json();
+        const zodResult = await ResetPinSchema.safeParse(detail);
+        if(!zodResult.success){
+            return c.json({
+                error: 'Pin Format Incorrect'
+            }, 401)
+        }
 
         const userId = c.get('userId')
 
@@ -443,10 +423,6 @@ userRouter.post('/decode/updateprofile', async(c) =>{
 })
 
 
-interface ResetPasswordDetail  {
-    oldPassword: string,
-    newPassword: string
-}
 
 userRouter.post('/decode/reset-pass', async(c) =>{
     const prisma = new PrismaClient({
@@ -454,7 +430,15 @@ userRouter.post('/decode/reset-pass', async(c) =>{
     }).$extends(withAccelerate())
 
     try {
-        const detail: ResetPasswordDetail = await c.req.json();
+        const detail: ResetPasswordType = await c.req.json();
+        const zodResult = RegisterSchema.safeParse(detail)
+        if(!zodResult.success){
+            c.status(401);
+            return c.json({
+                message: "Invalid Password format",
+                errors: zodResult.error.errors,
+            });
+        }
 
         const userId = c.get('userId')
 

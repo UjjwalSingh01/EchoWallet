@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import {  PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
+import { AddGroupTransactionSchema, AddGroupTransactionType } from "../schemas";
 
 export const groupRouter = new Hono<{
     Bindings: {
@@ -218,15 +219,15 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
 })
 
 
-interface AddGroupTransactionDetail {
-    description: string,
-    amount: number,
-    // paidByUserId: string,
-    groupId: string,
-    shares: {
-        [userId: string]: number; 
-    }
-}
+// interface AddGroupTransactionDetail {
+//     description: string,
+//     amount: number,
+//     // paidByUserId: string,
+//     groupId: string,
+//     shares: {
+//         [userId: string]: number; 
+//     }
+// }
 
 groupRouter.post('/decode/add-group-transaction', async(c) => {
     const prisma = new PrismaClient({
@@ -236,11 +237,17 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
     try {
         const userId = c.get('userId')
 
-        const details : AddGroupTransactionDetail = await c.req.json()
-
-        if (details.amount <= 0) {
-            return c.json({ error: 'Amount must be greater than zero' }, 400);
+        const details : AddGroupTransactionType = await c.req.json()
+        const zodResult = await AddGroupTransactionSchema.safeParse(details)
+        if(!zodResult.success){
+            return c.json({
+                error: 'Invalid Format'
+            }, 401)
         }
+
+        // if (details.amount <= 0) {
+        //     return c.json({ error: 'Amount must be greater than zero' }, 400);
+        // }
 
         const transaction = await prisma.groupTransaction.create({
             data: {
@@ -278,7 +285,6 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
 interface AddGroupDetail {
     title: string,
     description: string,
-    // members: string[]
 }
 
 groupRouter.post('/decode/add-group', async(c) => {

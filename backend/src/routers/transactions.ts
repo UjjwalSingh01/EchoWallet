@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { PrismaClient, TransactionCategory } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { decode, sign, verify } from 'hono/jwt'
+import { verify } from 'hono/jwt'
+import { TransferSchema, TransferType } from "../schemas";
 
 export const transactionRouter = new Hono<{
     Bindings: {
-        DATABASE_URL: string  // to specify that Database_url is a string;
+        DATABASE_URL: string  
         JWT_SECRET: string
     },
     Variables: {
@@ -58,11 +59,11 @@ transactionRouter.use("/decode/*", async (c, next) => {
 })
 
 
-type TransactionDetails = {
-    name: string, 
-    date: string,
-    amount: number
-}
+// type TransactionDetails = {
+//     name: string, 
+//     date: string,
+//     amount: number
+// }
 
 transactionRouter.get('/decode/gettransaction', async(c) => {
 
@@ -119,13 +120,13 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
 })
 
 
-type transferDetails = {
-    to: string,
-    amount: number,
-    pin: string,
-    category: TransactionCategory,
-    description? : string
-}  
+// type transferDetails = {
+//     to: string,
+//     amount: number,
+//     pin: string,
+//     category: TransactionCategory,
+//     description? : string
+// }  
 
 transactionRouter.post('/decode/transaction', async(c) => {
 
@@ -134,8 +135,14 @@ transactionRouter.post('/decode/transaction', async(c) => {
     }).$extends(withAccelerate())
 
     try {
-        const detail: transferDetails = await c.req.json()
+        const detail: TransferType = await c.req.json()
         console.log(detail)
+        const zodResult = await TransferSchema.safeParse(detail)
+        if(!zodResult.success){
+            return c.json({
+                error: 'Invalid Format'
+            }, 401)
+        }
 
         const userId: string = c.get('userId')
 

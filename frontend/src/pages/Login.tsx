@@ -21,11 +21,9 @@ export default function Login() {
     try {
       const parseData = loginSchema.parse({email, password})
 
-      const response = await axios.get('http://localhost:8787/api/v1/user/login', {
-        params: {
+      const response = await axios.post('http://localhost:8787/api/v1/user/login', {
           email: parseData.email,
-          password: parseData.password
-        }
+          password: parseData.password        
       })
 
       localStorage.setItem("token", response.data.message)

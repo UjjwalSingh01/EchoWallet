@@ -112,9 +112,9 @@ detailRouter.get('/decode/getfriends', async (c) => {
 
 
 
-type AddFriendDetail = {
-    friendId: string,
-}
+// type AddFriendDetail = {
+//     friendId: string,
+// }
 
 detailRouter.post('/decode/addfriend', async (c) => {
     const prisma = new PrismaClient({
@@ -122,12 +122,12 @@ detailRouter.post('/decode/addfriend', async (c) => {
     }).$extends(withAccelerate())
 
     try {
-        const details: AddFriendDetail = await c.req.json(); // Ensure to await the JSON parsing
+        const friendId: string = await c.req.json(); 
         const userId: string = c.get('userId');
 
         const response = await prisma.user.findFirst({
             where:{
-                id: details.friendId
+                id: friendId
             }
         })
 
@@ -140,7 +140,7 @@ detailRouter.post('/decode/addfriend', async (c) => {
         const addfriend = await prisma.friend.create({
             data: {
                 userId: userId,
-                friendId: details.friendId,
+                friendId: friendId,
             }
         });
 

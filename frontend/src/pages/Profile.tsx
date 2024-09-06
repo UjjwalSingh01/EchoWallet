@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -8,8 +10,8 @@ import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Avatar from '@mui/material/Avatar';
 import { Divider } from '@mui/material';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import BasicModal from '../component/BasicModal';
 
 const VisuallyHiddenInput = styled('input')({
@@ -32,32 +34,43 @@ interface UserDetails {
 }
 
 export default function Profile() {
-    const [user, setUser] = useState<UserDetails>({
-      firstname: "John",
-      lastname: "Doe",
-      email: "jd@gmail.com"
-    });
+  const [user, setUser] = useState<UserDetails>({
+    firstname: "John",
+    lastname: "Doe",
+    email: "jd@gmail.com"
+  });
 
-    const [oldPassword, setOldPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
-    useEffect(() => {
-        const fetchDetails = async () => {
-      
-            try {
-              const response = await axios.get('http://localhost:8787/api/v1/user/decode/userprofile', {
-                headers: { "Authorization": localStorage.getItem("token") }
-              });
-              
-              setUser(response.data.user); 
-              
-            } catch (error) {
-              console.error("Error in Fetching Notification: ", error);
-            }
-          };
-      
-          fetchDetails();
-      }, [])
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+
+  useEffect(() => {
+      const fetchDetails = async () => {
+    
+          try {
+            const response = await axios.get('http://localhost:8787/api/v1/user/decode/userprofile', {
+              headers: { "Authorization": localStorage.getItem("token") }
+            });
+            
+            setUser(response.data.user); 
+            
+          } catch (error) {
+            console.error("Error in Fetching Notification: ", error);
+          }
+        };
+    
+        fetchDetails();
+    }, [])
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
 
   async function handleUpdate() {
@@ -71,10 +84,12 @@ export default function Profile() {
         headers: { "Authorization": localStorage.getItem("token") },
       })
 
+      showSnackbar("Profile updated successfully!", "success");
       setUser(response.data.user)
 
     } catch (error) {
-      
+      showSnackbar("Error updating profile.", "error");
+      console.error('Error in Updating Profile: ', error)
     }
   }
 
@@ -90,9 +105,11 @@ export default function Profile() {
         }
       )
 
+      showSnackbar("Password reset successfully!", "success");
       console.log(response.data.message)
       
     } catch (error) {
+      showSnackbar("Error resetting password.", "error");
       console.error("Error in Reseting Password: ", error)
     }
   }
@@ -166,6 +183,43 @@ export default function Profile() {
           </div>
         </CardContent>
       </Card>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
