@@ -3,12 +3,12 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Divider } from '@mui/material';
+import { Divider , useTheme } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import OutlinedCard from '../component/GrpCard';
 import AddMemberModel from '../component/AddMemberModel';
 import AddGroupExpenseModal from '../component/AddGroupExpenseModal';
+import GrpCard from '../component/GrpCard';
 
 interface TransactionDetails {
   name: string;
@@ -26,6 +26,8 @@ export interface MembersDetails {
 const TripDetail = () => {
   const location = useLocation();
   const id = location.state;
+
+  const theme = useTheme();
 
   const [members, setMembers] = useState<MembersDetails[]>([
     {
@@ -80,25 +82,34 @@ const TripDetail = () => {
   return (
     <Box
       sx={{
-        display: 'flex',           
-        justifyContent: 'center',  
-        alignItems: 'center',      
-        height: '100vh',           
-        width: '100vw',            
-        boxSizing: 'border-box',   
-        padding: 2,                
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        boxSizing: 'border-box',
+        padding: 2,
+        backgroundColor: theme.palette.background.default,           
       }}
     >
       <Card sx={{ 
-          width: '80%',           
-          height: '80%',          
-          display: 'flex',        
-          flexDirection: 'column',
-          overflowY: 'auto',      // Enable vertical scrolling
-          scrollbarWidth: 'none', // Hide scrollbar (Firefox)
-          '&::-webkit-scrollbar': {
-            display: 'none',      // Hide scrollbar (WebKit - Chrome, Safari)
-          },
+           width: '80%',
+           height: '80%',
+           display: 'flex',
+           flexDirection: 'column',
+           overflowY: 'auto',
+           boxShadow: 6, // Enhanced shadow
+           borderRadius: 3, // Rounded corners
+           bgcolor: 'background.paper',
+           '&:hover': {
+             boxShadow: 12, // Shadow effect on hover
+             transform: 'translateY(-5px)',
+           },
+           scrollbarWidth: 'none',
+           '&::-webkit-scrollbar': {
+             display: 'none',
+           },
+           transition: 'box-shadow 0.3s ease, transform 0.3s ease',
         }}>
         <CardContent>
           <div className='flex justify-center items-center px-4 sm:px-6 lg:px-8'>
@@ -122,8 +133,8 @@ const TripDetail = () => {
           
           <div className='flex flex-col  sm:flex-row justify-evenly'>
             <div className='flex md:flex-row w-full  sm:w-1/2 my-5 justify-center items-center flex-col'>
-              <OutlinedCard heading='Balance' amount={1000} />
-              <OutlinedCard heading='Expenditure' amount={1000} />
+              <GrpCard heading='Balance' amount={1000} />
+              <GrpCard heading='Expenditure' amount={1000} />
             </div>
             <div className='flex flex-col justify-center my-5'>
               <AddMemberModel members={members} setMembers={setMembers} />

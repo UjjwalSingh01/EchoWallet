@@ -86,7 +86,7 @@ export const Dashboard = () => {
         }}
       >
         <CardContent>
-          <div className="grid gap-6 xl:grid-cols-3">
+          <div className="grid xl:grid-cols-3">
             <AmountCard heading="Wallet" amount={account.balance}/>
             <AmountCard heading="Month Credit" amount={account.currentMonthCredit}/>
             <AmountCard heading="Month Debit" amount={account.currentMonthDebit}/>

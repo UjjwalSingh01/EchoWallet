@@ -11,7 +11,7 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
+// import MoreIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 // import axios from 'axios';
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -87,9 +87,9 @@ export default function Navbar() {
     
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+  // const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  //   setMobileMoreAnchorEl(event.currentTarget);
+  // };
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
@@ -177,7 +177,7 @@ export default function Navbar() {
             noWrap
             component="div"
             sx={{ 
-              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } 
+              fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' } 
             }} 
           >
             EchoWallet
@@ -197,7 +197,7 @@ export default function Navbar() {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton
+            {/* <IconButton
               size="large"
               edge="end"
               aria-label="account of current user"
@@ -207,18 +207,11 @@ export default function Navbar() {
               color="inherit"
             >
               <AccountCircle />
-            </IconButton>
+            </IconButton> */}
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
+          <IconButton  sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
+              {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
         </Toolbar>

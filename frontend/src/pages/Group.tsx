@@ -21,14 +21,14 @@ const Trips = () => {
   const [groups, setGroups] = useState<GroupDetails[]>([
     {
       id: '1',
-      title: 'Trip 1',
+      title: 'Group 1',
       description: 'Goa',
       date: '24/11/23',
       balance: 5000,
     },
     {
       id: '2',
-      title: 'Trip 2',
+      title: 'Group 2',
       description: 'Night Out',
       date: '24/11/24',
       balance: -1000,
@@ -88,7 +88,7 @@ const Trips = () => {
       >
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
-            Your Trips
+            Your Groups
           </Typography>
           <Divider sx={{ marginBottom: 3 }} />
           <Box
@@ -102,7 +102,7 @@ const Trips = () => {
           </Box>
           {
             groups.map((group) => (
-              <Link to={`/Trips/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
+              <Link to={`/Groups/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
                 <TripCard key={group.id} data={group} />
               </Link>
             ))

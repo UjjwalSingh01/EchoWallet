@@ -24,7 +24,7 @@ export default function AmountCard({ heading, amount }: PropsType) {
         sx={{
           width: { xs: '100%', sm: '90%', md: '80%', lg: '80%' },
           maxWidth: 600, // Optional max width to prevent the card from getting too wide
-          borderRadius: 2,
+          borderRadius: 4,
           boxShadow: 6, // Adding shadow for depth
           transition: 'transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease',
           border: `2px solid ${theme.palette.background.default}`,
@@ -45,7 +45,7 @@ export default function AmountCard({ heading, amount }: PropsType) {
           <Typography
             gutterBottom
             sx={{
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
               textAlign: 'center',
               color: 'text.secondary',
             }}

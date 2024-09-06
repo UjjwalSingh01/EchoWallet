@@ -3,7 +3,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { Add } from '@mui/icons-material';
+import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReactPaginate from 'react-paginate';
 import { IconButton, Avatar, Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -141,7 +141,7 @@ export default function Transfer() {
                 <Box sx={{justifyContent:'center', alignItems:'center'}}>
                   {!clickedIcons[user.id] && ( // Check if the icon has been clicked
                     <IconButton color="primary" onClick={() => handleAddClick(user.id)} sx={{ marginRight: {md:'none', lg:1} }}>
-                      <Add />
+                      <AddReactionRoundedIcon />
                     </IconButton>
                   )}
                   <IconButton color="secondary">

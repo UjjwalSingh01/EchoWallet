@@ -7,14 +7,15 @@ import Sidebar from './component/Sidebar';
 import Transaction from './pages/Transaction';
 import Notification from './pages/Notification';
 import Transfer from './pages/Transfer';
-import Trips from './pages/Trips';
+import Trips from './pages/Group';
 import Profile from './pages/Profile';
 import Friends from './pages/Friends';
 import CreditCard from './pages/CreditCard';
-import TripDetail from './pages/TripDetail';
+import TripDetail from './pages/GroupDetail';
 import { useThemeContext } from "./theme/ThemeContextProvider";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import HelpSupport from './pages/HelpSupport';
 
 // const darkTheme = createTheme({
 //   palette: {
@@ -38,12 +39,13 @@ function App() {
             <Route path='/Dashboard' element={<Dashboard />} />
             <Route path='/Transaction' element={<Transaction />} />
             <Route path='/Transfer' element={<Transfer />} />
-            <Route path='/Trips' element={<Trips />} />
-            <Route path='/Trips/:id' element={<TripDetail />} />
+            <Route path='/Groups' element={<Trips />} />
+            <Route path='/Groups/:id' element={<TripDetail />} />
             <Route path='/Profile' element={<Profile />} />
             <Route path='/Friends' element={<Friends />} />
             <Route path='/Credit Card' element={<CreditCard />} />
             <Route path='/Notification' element={<Notification />} />
+            <Route path='/Help & Support' element={<HelpSupport />} />
           </Routes>
         </div>
       </BrowserRouter>
