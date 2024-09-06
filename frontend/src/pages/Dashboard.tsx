@@ -91,11 +91,11 @@ export const Dashboard = () => {
             <AmountCard heading="Month Credit" amount={account.currentMonthCredit}/>
             <AmountCard heading="Month Debit" amount={account.currentMonthDebit}/>
           </div>
-          <div className="grid mx-7 gap-10 lg:gap-14 mt-8 lg:mt-20 xl:grid-cols-2">
-            <div className="w-full">
+          <div className="flex-row justify-around mt-8 lg:mt-20 xl:flex">
+            <div className="flex w-full">
               <Barchart dataset={barData} />
             </div>
-            <div className="w-full">
+            <div className="flex w-full">
               <BasicPie dataset={pieData} />
             </div>
           </div>

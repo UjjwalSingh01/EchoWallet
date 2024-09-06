@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Box, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -11,6 +11,8 @@ interface Dataset {
 }
 
 export default function InteractivePieChart({ dataset }: { dataset: Dataset }) {
+  const theme = useTheme();
+  
   const data = [
     { name: 'Food', value: dataset.foodExpenditure },
     { name: 'Shopping', value: dataset.shoppingExpenditure },
@@ -20,27 +22,50 @@ export default function InteractivePieChart({ dataset }: { dataset: Dataset }) {
 
   return (
     <Box
-      sx={{
-        backgroundColor: '#fff',
-        padding: 2,
-        borderRadius: 4,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-        width: '100%',
-      }}
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center', // Center vertically
+      width: '100%',
+      height: '100%', // Ensure the Box takes full height
+      textAlign: 'center',
+      padding: { xs: 2, sm: 4, md: 2 }, // Padding around the outer Box
+    }}
     >
+      <Card
+        sx={{
+          width: { xs: '100%', sm: '90%', md: '80%', lg: '95%' },
+          maxWidth: 600, // Optional max width to prevent the card from getting too wide
+          borderRadius: 4,
+          boxShadow: 6, // Adding shadow for depth
+          transition: 'transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease',
+          border: `2px solid ${theme.palette.background.default}`,
+          '&:hover': {
+            transform: 'translateY(-5px)',
+            boxShadow: `0 10px 20px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.1)'}`,
+            borderColor: theme.palette.primary.main,
+          },
+          display: 'flex',
+          flexDirection: 'column', // Ensure the content inside the card is vertically stacked
+          justifyContent: 'center', // Center content vertically inside the card
+          alignItems: 'center', // Center content horizontally inside the card
+          backgroundColor: 'background.paper',
+          padding: 2,
+        }}
+      >
+        <CardContent sx={{ width: '100%' }}>
       <Typography variant="h5" sx={{ marginBottom: 2, fontWeight: 'bold' }}>
         Expenditure Distribution
       </Typography>
 
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={70}
-            outerRadius={140}
+            innerRadius={50}
+            outerRadius={110}
             fill="#8884d8"
             paddingAngle={5}
             dataKey="value"
@@ -64,12 +89,14 @@ export default function InteractivePieChart({ dataset }: { dataset: Dataset }) {
           />
           <Legend
             verticalAlign="bottom"
-            height={36}
+            height={3}
             iconType="circle"
             formatter={(value) => <span style={{ color: '#555' }}>{value}</span>}
           />
         </PieChart>
       </ResponsiveContainer>
+      </CardContent>
+      </Card>
     </Box>
   );
 }
