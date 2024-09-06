@@ -124,6 +124,13 @@ model Share {
   @@unique([transactionId, userId])
 }
 
+
+model Query {
+  id        String    @id @default(uuid())
+  query     String
+  resolved  Boolean
+}
+
 enum TransactionType {
   CREDIT
   DEBIT

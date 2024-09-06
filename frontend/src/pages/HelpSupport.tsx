@@ -2,30 +2,58 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Divider } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Alert, Button, Divider, Snackbar, TextField } from '@mui/material';
+import { useState } from 'react';
 // import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { z } from 'zod';
+
+
+const querySchema = z.object({
+  query: z.string().min(6, 'Query Must Be Atleast 6 Characters Long')
+})
 
 const HelpSupport = () => {
-    
+  const [query, setQuery] = useState('')
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/get-group', {
-          headers: { "Authorization": localStorage.getItem("token") }
-        });
-        
-        // setGroups(response.data.groups); 
-        
-      } catch (error) {
-        console.error("Error in Fetching Groups: ", error);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+
+  async function SubmitQuery() {
+    try {
+      const parseData = await querySchema.safeParseAsync(query);
+      
+      if (!parseData.success) {
+        showSnackbar(`Validation Error`, "error");
+        console.error("Validation Error: ", parseData.error.errors);
+        return; 
       }
-    };
+  
+      await axios.post('http://localhost:8787/api/v1/detail/query', {
+        query: parseData.data 
+      });
 
-    fetchDetails();
-  }, []);
+      showSnackbar("Query Added successfully!", "success");
+      setQuery('')
+  
+    } catch (error) {
+      showSnackbar("Error Adding Query.", "error");
+      if (axios.isAxiosError(error)) {
+        console.error("HTTP Error: ", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected Error: ", error);
+      }
+    }
+  }
+  
 
   return (
     <Box
@@ -71,19 +99,66 @@ const HelpSupport = () => {
               display: 'flex',
               justifyContent: 'center',
               marginBottom: 4,
+              marginTop: 10,
+              flexDirection:'column',
+              gap: 4
             }}
           >
-            {/* <BasicModal name='Add Group' action='Add' /> */}
+      
+            <TextField
+              id="outlined-textarea"
+              label="Add Query"
+              placeholder="Query"
+              multiline
+              sx={{
+                width: "50%",
+                alignSelf: "center"
+              }}
+              onChange={(e)=>{setQuery(e.target.value)}}
+            />
+
+            <Button variant='contained' sx={{width:'30%', alignSelf:'center'}} onClick={() => {SubmitQuery()}}>Add Query</Button>
+            
           </Box>
-          {/* {
-            groups.map((group) => (
-              <Link to={`/Trips/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
-                <TripCard key={group.id} data={group} />
-              </Link>
-            ))
-          } */}
         </CardContent>
       </Card>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

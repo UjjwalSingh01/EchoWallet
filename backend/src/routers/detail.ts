@@ -331,3 +331,42 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
         }, 500);
     }
 });
+
+
+detailRouter.post('/query', async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const query: string = await c.req.json()
+
+        if(query === ""){
+            return c.json({
+                error: "Empty Query is Not allowed"
+            }, 400)
+        }
+        else if(query.length <= 6){
+            return c.json({
+                error: 'Query Must Be Atleast 6 Characters Long'
+            }, 400)
+        }
+
+        await prisma.query.create({
+            data:{
+                query: query,
+                resolved: false
+            }
+        })
+
+        return c.json({
+            message: 'Query Added Successfully'
+        })
+        
+    } catch (error) {
+        console.error("Server-Side Error in Adding Query: ", error);
+        return c.json({ 
+            error: "Server-Side Error in Adding Query"
+        }, 500);
+    }
+})
