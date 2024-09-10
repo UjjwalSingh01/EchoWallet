@@ -116,6 +116,13 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
             </Typography>
           )}
 
+          <TextField
+            id="outlined-basic"
+            label="Pin"
+            variant="outlined"
+            sx={{ marginBottom: 3, width: '100%' }}
+          />
+
           <Button onClick={handleSubmit} sx={{marginBottom:2, marginTop:3, width:"100%"}} variant="outlined">
             Add Expense
           </Button>
