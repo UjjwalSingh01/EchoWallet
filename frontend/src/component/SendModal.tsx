@@ -1,20 +1,20 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
-import { Divider, TextField, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
+import { Divider, TextField, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '90%', // Use percentage for responsive width
-  maxWidth: 600, // Set a maximum width
+  width: '90%',
+  maxWidth: 600,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -34,8 +34,18 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function SendMoneyModal({id}:{id: string}) {
-  const [open, setOpen] = React.useState(false);
-  const [category, setCategory] = React.useState("OTHER");
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState("OTHER");
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -53,40 +63,47 @@ export default function SendMoneyModal({id}:{id: string}) {
 
   const handleOpen = () => {
     setOpen(true);
-    reset()
+    reset();
+    setCategory("OTHER");
   };
 
   async function handleClose() {
     try {
-      const result = await schema.safeParseAsync({
+      const result = await schema.safeParse({
         amount: amount,
         pin: pin,
         category: category,
         description: description,
       });
 
-      if (result.success) {
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/transaction',
-          {
-            id,
-            amount: parseInt(amount),
-            // amount,
-            pin,
-            category,
-            description
-          }, {
-            headers: { "Authorization": localStorage.getItem("token") },
-          }
-        );
-
-        console.log(response.data);
-        setOpen(false);
-      } else {
-        console.error(result.error);
-        // Handle errors here (e.g., show a toast or alert)
+      if(!result.success){
+        result.error.errors.forEach((error) => {
+          console.log(error.message)
+          showSnackbar(`${error.message}`, "error");
+        });
+        return;
       }
+
+      const response = await axios.post('http://localhost:8787/api/v1/transaction/decode/transaction',
+        {
+          to: id,
+          amount: parseInt(amount),
+          // amount,
+          pin,
+          category,
+          description
+        }, {
+          headers: { "Authorization": localStorage.getItem("token") },
+        }
+      );
+
+      console.log(response.data)
+
+      showSnackbar('Transaction SuccessFul', 'success');
+      setOpen(false);
       
     } catch (error) {
+      showSnackbar('Error in Making Transaction', 'error');
       console.error("Error in Making Transaction: ", error);
     }
 
@@ -155,6 +172,43 @@ export default function SendMoneyModal({id}:{id: string}) {
           <Button variant="outlined" onClick={handleSubmit(handleClose)} sx={{ width: '100%' }}>Send</Button>
         </Box>
       </Modal>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import image from '../assets/Lofi Sunrise ♡.jpeg'
 import { z } from 'zod';
+import { Alert, Snackbar } from "@mui/material"
 
 
 const loginSchema = z.object({
@@ -15,27 +16,48 @@ export default function Login() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+
   const navigate = useNavigate()
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   async function handleLogin() {
     try {
-      const parseData = loginSchema.parse({email, password})
+      const parseData = loginSchema.safeParse({ email, password });
+      if(!parseData.success){
+        parseData.error.errors.forEach((error) => {
+          console.log(error.message)
+          showSnackbar(`${error.message}`, "error");
+        });
+        return;
+      }
 
       const response = await axios.post('http://localhost:8787/api/v1/user/login', {
-          email: parseData.email,
-          password: parseData.password        
+          email: email,
+          password: password        
       })
 
-      localStorage.setItem("token", response.data.message)
+      if(response.status == 200){
+        showSnackbar('Signin Successful', "success");
 
-      navigate('/Dashboard')
+        localStorage.setItem("token", response.data.message)
+
+        navigate('/Dashboard')
+      }
+      else {
+        showSnackbar('Server Error in Signin UnSuccessful', "error");
+      }
 
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        //
-      } else {
         console.error("Error in Login: ",  error)
-      }
     }
   }
 
@@ -78,6 +100,43 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   )
 }

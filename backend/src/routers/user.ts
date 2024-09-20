@@ -13,7 +13,7 @@ import { RegisterSchema, RegisterType, ResetPasswordSchema, ResetPasswordType, R
 
 export const userRouter = new Hono<{
 	Bindings: {
-        DATABASE_URL: string  // to specify that Database_url is a string;
+        DATABASE_URL: string  
         JWT_SECRET: string
 	},
     Variables: {
@@ -31,49 +31,41 @@ userRouter.post('/register', async (c) => {
 
     try {
         const detail: RegisterType = await c.req.json();
-        console.log(detail);
+        // console.log(detail);
 
-        // Validate email using Zod schema
         const zodResult = RegisterSchema.safeParse(detail);
         if (!zodResult.success) {
-            c.status(401);
             return c.json({
-                message: "Invalid email format",
-                errors: zodResult.error.errors,
-            });
+                message: "Invalid Format",
+            }, 401);
         }
 
-        // Check if the user already exists
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.user.findFirst({
             where: {
                 email: detail.email,
             },
         });
 
         if (existingUser) {
-            c.status(409);
             return c.json({
                 message: "User already exists",
-            });
+            }, 409);
         }
 
-        // Hash the password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(detail.password, saltRounds);
         const hashedPin = await bcrypt.hash(detail.pin, saltRounds);
 
-        // Create the new user
         const user = await prisma.user.create({
             data: {
                 firstname: detail.firstname,
-                lastname: detail.lastname || null, // Handle optional last name
+                lastname: detail.lastname || null, 
                 email: detail.email,
                 password: hashedPassword,
                 pin: hashedPin
             },
         });
 
-        // Create an initial account for the user with zero balance
         const account = await prisma.account.create({
             data: {
                 userId: user.id,
@@ -82,28 +74,24 @@ userRouter.post('/register', async (c) => {
         });
 
         // Generate a JWT token
-        const token = sign({ id: user.id }, c.env.JWT_SECRET);
+        const token = await sign({ id: user.id }, c.env.JWT_SECRET);
+        console.log(token)
 
-        // Return the response with token and user details
-        c.status(200);
         return c.json({
             token: token,
             user: {
-                id: user.id,
                 firstname: user.firstname,
                 lastname: user.lastname,
                 email: user.email,
-                // Exclude sensitive information like hashed password
             },
-        });  
+        }, 200);
         
     } catch (error) {
         console.error("Server-Side Error In Signup: ", error);
-        c.status(500);
         return c.json({
             message: "An error occurred during sign-up",
             error: error
-        });
+        }, 500);
     }
 })
 
@@ -117,13 +105,11 @@ userRouter.post('/login', async (c) => {
     try {
 
         const detail: SignInType = await c.req.json();
-        const zodResult = SignInSchema.safeParse(detail)
+        const zodResult = await SignInSchema.safeParse(detail)
         if(!zodResult.success){
-            c.status(401);
             return c.json({
-                message: "Invalid email format",
-                errors: zodResult.error.errors,
-            });
+                message: "Invalid Format",
+            }, 401);
         }
 
         const response = await prisma.user.findUnique({
@@ -133,28 +119,29 @@ userRouter.post('/login', async (c) => {
         })
 
         if(response === null){
-            c.status(401)
             return c.json({
                 message: "User Does not Exist"
-            })
+            }, 401)
         }
 
         const isMatch = await bcrypt.compare(detail.password, response.password)
         if(!isMatch){
-            c.status(401)
             return c.json({
                 message: "Invalid Credentials"
-            })
+            }, 401)
         }
 
         const token = await sign({ id: response.id }, c.env.JWT_SECRET);
 
         return c.json({
             message: token,
-        })
+        }, 200)
 
     } catch (error) {
         console.error("Server Site error in Signin: ", error)
+        return c.json({
+            message: "Server Site error in Signin",
+        }, 500);
     }
 })
 
@@ -183,14 +170,13 @@ userRouter.use("/decode/*", async (c, next) => {
 })
 
 
-userRouter.get('/decode/users' , async(c) => {
+userRouter.get('/users' , async(c) => {
 
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
     try {
-        // const userId = c.get('userId')
         const searchTerm: string = c.req.query('searchTerm') || ""
 
         const users = await prisma.user.findMany({
@@ -213,7 +199,7 @@ userRouter.get('/decode/users' , async(c) => {
             select:{
                 id: true,
                 firstname: true,
-                lastname: true
+                lastname: true,
             }
         });
 
@@ -245,12 +231,28 @@ userRouter.get('/decode/userprofile', async(c) =>{
             select:{
                 firstname: true,
                 lastname: true,
-                email: true
+                email: true,
+                accounts: {
+                    select:{
+                        balance: true
+                    }
+                }
             }
         })
 
+        if(!userProfile){
+            return c.json({
+                error: 'User Does Not Exists'
+            }, 404)
+        }
+
         return c.json({
-            user: userProfile
+            user: { 
+                firstname: userProfile.firstname, 
+                lastname: userProfile.lastname,
+                email: userProfile.email,
+                balance: userProfile.accounts[0].balance
+            }
         })
 
     } catch (error) {
@@ -262,121 +264,114 @@ userRouter.get('/decode/userprofile', async(c) =>{
 })
 
 
-userRouter.post('/decode/addbalance', async(c) =>{
+userRouter.post('/decode/addbalance', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
+    }).$extends(withAccelerate());
 
     try {
-        const balance: number = await c.req.json() ;
+        const { balance }: { balance: number } = await c.req.json();
 
         const userId = c.get('userId');
 
         const user = await prisma.account.findFirst({
-            where:{
+            where: {
                 userId: userId
             },
-            select:{
+            select: {
                 id: true,
             }
-        })
+        });
 
-        if(user === null){
+        if (!user) {
             return c.json({
                 error: "Account Not Created"
-            }, 404)
+            }, 404);
         }
 
         await prisma.account.update({
-            where:{
+            where: {
                 id: user.id
             },
-            data:{
+            data: {
                 balance: {
-                    increment: balance
+                    increment: balance // Pass the balance as a number directly
                 }
             }
-        })
+        });
 
         return c.json({
             message: "Balance Added"
-        })
+        }, 200);
 
-        
     } catch (error) {
-        console.error("Server-site Error in Adding Balance: ", error)
+        console.error("Server-side Error in Adding Balance: ", error);
         return c.json({
-            error: "Server-site Error in Adding Balance"
-        }, 500)
+            error: "Server-side Error in Adding Balance"
+        }, 500);
     }
-})
+});
 
 
 
-userRouter.post('/decode/resetpin', async(c) =>{
+
+
+userRouter.post('/decode/resetpin', async(c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
+    }).$extends(withAccelerate());
 
     try {
         const detail: ResetPinType = await c.req.json();
         const zodResult = await ResetPinSchema.safeParse(detail);
-        if(!zodResult.success){
+        
+        if (!zodResult.success) {
             return c.json({
                 message: 'Pin Format Incorrect',
                 errors: zodResult.error.errors,
-            }, 401)
+            }, 401);
         }
 
-        const userId = c.get('userId')
+        const userId = c.get('userId');
 
         const response = await prisma.user.findFirst({
-            where:{
-                id : userId
-            },
-            select:{
-                pin: true
-            }
-        })
+            where: { id: userId },
+            select: { pin: true }
+        });
 
-        if(!response) {
-            return c.json({
-                error: "User Not Found"
-            }, 404)
+        if (!response) {
+            return c.json({ error: "User Not Found" }, 404);
         }
 
-        const isMatch = await bcrypt.compare(detail.oldPin, response.pin)
-        if(!isMatch){
-            c.status(401)
+        const isMatch = await bcrypt.compare(detail.oldPin, response.pin);
+        if (!isMatch) {
+            return c.json({ message: "Invalid Old Pin" }, 401);
+        }
+
+        if (detail.oldPin === detail.newPin) {
             return c.json({
-                message: "Invalid Pin"
-            })
+                message: "New Pin cannot be the same as the old pin"
+            }, 400);
         }
 
         const saltRounds = 10;
         const hashedPin = await bcrypt.hash(detail.newPin, saltRounds);
-        
-        await prisma.user.update({
-            where:{
-                id: userId,
-            }, 
-            data: {
-                password: hashedPin
-            }
-        })
 
+        await prisma.user.update({
+            where: { id: userId },
+            data: { pin: hashedPin }
+        });
+
+        return c.json({ message: "Pin Reset Successful" });
+
+    } catch (error) {
+        console.error("Server-side Error in Resetting Pin: ", error);
         return c.json({
-            message: "Pin Reset Successful"
-        })
-    
-        
-    } catch(error){
-        console.error("Server-site Error in Resetting Pin: ", error)
-        return c.json({
-            error: "Server-site Error in Resetting Pin"
-        }, 500)
+            error: "Server-side Error in Resetting Pin"
+        }, 500);
     }
-})
+});
+
 
 
 interface UpdateDetails {
@@ -414,7 +409,7 @@ userRouter.post('/decode/updateprofile', async(c) =>{
 
         return c.json({
             message: "User Credential Edited Successfully"
-        })
+        }, 200)
 
     } catch (error) {
         console.error('Server-Site Error in Updating User: ', error)
@@ -466,11 +461,10 @@ userRouter.post('/decode/reset-pass', async(c) =>{
             }, 403)
         }
 
-        // Hash the password
         const saltRounds = 10;
         const newHashedPassword = await bcrypt.hash(detail.newPassword, saltRounds);
 
-        const updatePassword = await prisma.user.update({
+        await prisma.user.update({
             where:{
                 id: userId,
             }, 
@@ -492,9 +486,9 @@ userRouter.post('/decode/reset-pass', async(c) =>{
 })
 
 
-userRouter.post('/decode/logout', async (c) => {
+// userRouter.post('/decode/logout', async (c) => {
     
-})
+// })
 
 
 

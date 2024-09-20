@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import image from '../assets/Lofi Sunrise ♡.jpeg';
 import { z } from 'zod';
+import { Alert, Snackbar } from "@mui/material";
 
 
 const registerSchema = z.object({
@@ -12,7 +13,6 @@ const registerSchema = z.object({
   firstname: z.string().min(2, 'Name Must Be at least 2 Characters long'),
   lastname: z.string().optional(),
   pin: z.string().length(6, 'Pin must be exactly 6 digits').regex(/^\d{6}$/, 'Pin must only contain digits'),
-  // confirmPin: z.string().length(6, 'Pin must be exactly 6 digits').regex(/^\d{6}$/, 'Pin must only contain digits'),
 });
 
 export default function Register() {
@@ -26,33 +26,56 @@ export default function Register() {
 
   const navigate = useNavigate();
 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
   async function handleRegister() {
     try {
       if(pin !== confirmPin) {
-        return; // Handle pin mismatch error here
+        showSnackbar('Pins do not match', 'error');
+        return;
       }
 
-      const parsedData = registerSchema.parse({ email, password, firstname, lastname, pin });
+      const parsedData = await registerSchema.safeParse({ email, password, firstname, lastname, pin });
+      if(!parsedData.success){
+        parsedData.error.errors.forEach((error) => {
+          console.log(error.message)
+          showSnackbar(`${error.message}`, "error");
+        });
+        return;
+      }
 
       const response = await axios.post('http://localhost:8787/api/v1/user/register', {
-        firstname: parsedData.firstname,
-        lastname: parsedData.lastname,
-        email: parsedData.email,
-        password: parsedData.password,
-        pin: parsedData.pin
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        password: password,
+        pin: pin
       });
 
-      localStorage.setItem("token", response.data.token);
+      if(response.status === 200){
+        showSnackbar('User Registered Successfully!', 'success');
 
-      navigate('/Dashboard');
+        localStorage.setItem("token", response.data.token);
+
+        navigate('/Dashboard');
+      }
+      else {
+        showSnackbar('Error in User Registration', 'error');
+      }
 
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Handle validation errors here
-      } else {
+        showSnackbar('Error in User Registration', 'error');
         console.error("Error in Registration:", error);
-      }
     }
+    
   }
 
   return (
@@ -116,6 +139,43 @@ export default function Register() {
           </div>
         </div>
       </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

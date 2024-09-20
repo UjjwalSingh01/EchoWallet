@@ -66,20 +66,41 @@ transactionRouter.use("/decode/*", async (c, next) => {
 //     amount: number
 // }
 
-transactionRouter.get('/decode/gettransaction', async(c) => {
+transactionRouter.get('/decode/gettransaction', async (c) => {
 
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
+    }).$extends(withAccelerate());
 
     try {
         const userId: string = c.get('userId');
 
+        // Fetch the account ID associated with the user
+        const account = await prisma.account.findFirst({
+            where: {
+                userId: userId,
+            },
+            select: { id: true }
+        });
+
+        if (!account) {
+            return c.json({
+                message: "Account not found",
+            }, 404);
+        }
+
+        // Fetch transactions using the account ID
         const transactions = await prisma.transaction.findMany({
             where: {
-                accountId: userId,
+                accountId: account.id, // Use the account ID instead of user ID
             },
         });
+
+        if (transactions.length === 0) {
+            return c.json({
+                message: "No transactions found",
+            }, 404);
+        }
 
         // Function to fetch recipient details by recipientId
         async function getRecipientDetails(recipientId: string) {
@@ -94,7 +115,7 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
             const recipient = await getRecipientDetails(transaction.recipientId);
             return {
                 ...transaction,
-                recipient: recipient || { firstname: '', lastname: '' } // Handle case where recipient is not found
+                recipient: recipient || { firstname: '', lastname: '' }, // Handle case where recipient is not found
             };
         }));
 
@@ -105,20 +126,22 @@ transactionRouter.get('/decode/gettransaction', async(c) => {
                 amount: t.amount,
                 type: t.type,
                 category: t.category
-            }
-        })
+            };
+        });
+
 
         return c.json({
             transactions: TransactionDetails
         });
-    
-    } catch(error) {
+
+    } catch (error) {
         console.error("Server-Side Error in Retrieving Transactions: ", error);
         return c.json({
             error: "Server-Side Error in Retrieving Transactions"
-        }, 500)
+        }, 500);
     }
-})
+});
+
 
 
 // type transferDetails = {
@@ -162,15 +185,12 @@ transactionRouter.post('/decode/transaction', async(c) => {
 
 
             if (!from) {
-                return c.json({ message: "Sender User Does Not Exist" }, 404);
+                return { error: "Sender User Does Not Exist", status: 404 };
             }
 
-            const isMatch = await bcrypt.compare(detail.pin, from.pin)
-            if(!isMatch){
-                c.status(401)
-                return c.json({
-                    message: "Invalid Pin"
-                })
+            const isMatch = await bcrypt.compare(detail.pin, from.pin);
+            if (!isMatch) {
+                return { error: "Invalid Pin", status: 401 };
             }
 
             const userAccount = await tx.account.findFirst({
@@ -180,11 +200,11 @@ transactionRouter.post('/decode/transaction', async(c) => {
             })
 
             if (!userAccount) {
-                return c.json({ message: "Sender Account Does Not Exist" }, 404);
+                return { error: "Sender Account Does Not Exist", status: 404 };
             }
-            
+
             if (userAccount.balance < detail.amount || detail.amount < 0) {
-                return c.json({ message: "Insufficient Balance" }, 401);
+                return { error: "Insufficient Balance", status: 401 };
             }
 
             const to = await tx.user.findFirst({
@@ -198,19 +218,19 @@ transactionRouter.post('/decode/transaction', async(c) => {
             })
 
             if (!to) {
-                return c.json({ message: "Recipient User Does Not Exist" }, 404);
+                return { error: "Recipient User Does Not Exist", status: 404 };
             }
-            
+
             const toAccount = await tx.account.findFirst({
-                where: { userId: detail.to },
+                where: { userId: detail.to }
             });
-            
+
             if (!toAccount) {
-                return c.json({ message: "Recipient Account Does Not Exist" }, 404);
+                return { error: "Recipient Account Does Not Exist", status: 404 };
             }
 
 
-            const updateUser = await tx.account.update({
+            await tx.account.update({
                 where:{
                     userId: userId,
                     id: userAccount.id
@@ -222,7 +242,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 }
             })
             
-            const updateRecipient = await tx.account.update({
+            await tx.account.update({
                 where: {
                     userId: detail.to,
                     id: toAccount.id
@@ -235,7 +255,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 
             })
         
-            const debitTx = await tx.transaction.create({
+            await tx.transaction.create({
                 data: {
                   accountId: userAccount.id,
                   recipientId: detail.to,
@@ -246,7 +266,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 },
               });
 
-            const creditTx = await tx.transaction.create({
+            await tx.transaction.create({
                 data: {
                   accountId: toAccount.id,
                   recipientId: userId,
@@ -257,7 +277,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 },
               });
 
-            const userNotify = await tx.notification.create({
+            await tx.notification.create({
                 data: {
                   userId: userId,
                   name: `${to.firstname} ${to.lastname}`,
@@ -266,7 +286,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 },
             });
 
-            const recipientNotify = await tx.notification.create({
+            await tx.notification.create({
                 data: {
                   userId: detail.to,
                   name: `${from.firstname} ${from.lastname}`,
@@ -275,15 +295,15 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 },
             });
 
-            return c.json({
-                message: "Transaction successful"
-            });
+            return { message: "Transaction successful", status: 200 };
 
         })
 
-        return c.json({
-            message: response
-        })
+        if (response.error) {
+            return c.json({ message: response.error }, { status: response.status }); // Fix: Use object for status
+        }
+
+        return c.json({ message: response.message }, 200);
 
     } catch (error){
         console.error("Server-Side Error In Transfer: ", error)
@@ -291,7 +311,6 @@ transactionRouter.post('/decode/transaction', async(c) => {
             error:"Server-Side Error In Transfer"
         }, 500)
     }
-    
 })
 
 

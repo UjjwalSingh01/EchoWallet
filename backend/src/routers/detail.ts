@@ -73,7 +73,6 @@ detailRouter.get('/decode/getfriends', async (c) => {
     try {
         const userId: string = c.get('userId');
 
-        // Find all friends of the user
         const friendsResponse = await prisma.friend.findMany({
             where: {
                 userId: userId
@@ -83,13 +82,11 @@ detailRouter.get('/decode/getfriends', async (c) => {
             }
         });
 
-        // Extract friendIds
         const friendIds = friendsResponse.map(friend => friend.friendId);
 
-        // Find user details for all friends
         const friendsDetails = await prisma.user.findMany({
             where: {
-                id: { in: friendIds } // Assuming the primary key for users is `id`
+                id: { in: friendIds } 
             },
             select: {
                 id: true,
@@ -112,17 +109,13 @@ detailRouter.get('/decode/getfriends', async (c) => {
 
 
 
-// type AddFriendDetail = {
-//     friendId: string,
-// }
-
 detailRouter.post('/decode/addfriend', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
     try {
-        const friendId: string = await c.req.json(); 
+        const { friendId } = await c.req.json();
         const userId: string = c.get('userId');
 
         const response = await prisma.user.findFirst({
@@ -137,7 +130,7 @@ detailRouter.post('/decode/addfriend', async (c) => {
             }, 400)
         }
 
-        const addfriend = await prisma.friend.create({
+        await prisma.friend.create({
             data: {
                 userId: userId,
                 friendId: friendId,
@@ -164,7 +157,7 @@ detailRouter.post('/decode/removefriend', async(c) => {
     }).$extends(withAccelerate())
 
     try {
-        const id: string = await c.req.json()
+        const { id } = await c.req.json()
         const userId = c.get('userId')
 
         const response = await prisma.friend.findFirst({
@@ -179,10 +172,9 @@ detailRouter.post('/decode/removefriend', async(c) => {
             }, 400)
         }
 
-        await prisma.friend.create({
-            data:{
-                userId: userId,
-                friendId: id
+        await prisma.friend.delete({
+            where:{
+                id: response.id
             }
         })
 
@@ -218,7 +210,6 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
 
         const balance = userBalance?.balance
 
-        // Current Month Start and End Dates
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
         const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
@@ -339,7 +330,7 @@ detailRouter.post('/query', async(c) => {
     }).$extends(withAccelerate())
 
     try {
-        const query: string = await c.req.json()
+        const { query } = await c.req.json()
 
         if(query === ""){
             return c.json({

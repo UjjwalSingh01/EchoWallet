@@ -29,7 +29,7 @@ export default function Transfer() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [clickedIcons, setClickedIcons] = useState<{ [key: string]: boolean }>({}); // Track clicked icons
+  const [clickedIcons, setClickedIcons] = useState<{ [key: string]: boolean }>({});
   const usersPerPage = 10;
 
   useEffect(() => {
@@ -39,7 +39,10 @@ export default function Transfer() {
           params: { searchTerm }
         });
 
-        setUsers(response.data.user);
+        setUsers(response.data.user.map((user: { firstname: string; lastname: string; id: string }) => ({
+          id: user.id,
+          name: `${user.firstname || ''} ${user.lastname || ''}`.trim(),
+        })));        
 
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -56,13 +59,14 @@ export default function Transfer() {
   const handleAddClick = (id: string) => {
     setClickedIcons(prevState => ({
       ...prevState,
-      [id]: true, // Mark this user as clicked
+      [id]: true,
     }));
   };
 
-  const displayedUsers = Array.isArray(users)
-    ? users.slice(currentPage * usersPerPage, (currentPage + 1) * usersPerPage)
-    : [];
+  // const displayedUsers = Array.isArray(users)
+  //   ? users.slice(currentPage * usersPerPage, (currentPage + 1) * usersPerPage)
+  //   : [];
+  const displayedUsers = users.slice(currentPage * usersPerPage, (currentPage + 1) * usersPerPage);
 
   return (
     <Box
@@ -82,18 +86,18 @@ export default function Transfer() {
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
-        boxShadow: 6, // Enhanced shadow
-        borderRadius: 3, // Rounded corners
+        boxShadow: 6,
+        borderRadius: 3,
         bgcolor: 'background.paper',
         '&:hover': {
-          boxShadow: 12, // Shadow effect on hover
+          boxShadow: 12,
           transform: 'translateY(-5px)',
         },
         scrollbarWidth: 'none',
         '&::-webkit-scrollbar': {
           display: 'none',
         },
-        transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
+        transition: 'box-shadow 0.3s ease, transform 0.3s ease',
       }}>
         <CardContent sx={{ padding: '24px' }}>
           <Typography
@@ -133,13 +137,18 @@ export default function Transfer() {
                 }}
               >
                 <Avatar sx={{ bgcolor: '#3f51b5', marginRight: 2 }}>
-                  {user.name.charAt(0)}
+                  {user.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                  }
                 </Avatar>
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
                   {user.name}
                 </Typography>
                 <Box sx={{justifyContent:'center', alignItems:'center'}}>
-                  {!clickedIcons[user.id] && ( // Check if the icon has been clicked
+                  {!clickedIcons[user.id] && (
                     <IconButton color="primary" onClick={() => handleAddClick(user.id)} sx={{ marginRight: {md:'none', lg:1} }}>
                       <AddReactionRoundedIcon />
                     </IconButton>
@@ -152,18 +161,67 @@ export default function Transfer() {
             ))}
           </Box>
           <Divider sx={{ marginY: 4 }} />
-          <ReactPaginate
-            previousLabel={"Previous"}
-            nextLabel={"Next"}
-            breakLabel={"..."}
-            pageCount={Math.ceil(users.length / usersPerPage)}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
-            onPageChange={handlePageClick}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            className="flex justify-center mt-4"
-          />
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mt: 4,
+              '& .pagination': {
+                display: 'flex',
+                listStyle: 'none',
+                padding: 0,
+                margin: 0,
+              },
+              '& .page-item': {
+                margin: '0 8px',
+              },
+              '& .page-link': {
+                padding: '8px 16px',
+                textDecoration: 'none',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: '#333',
+                transition: 'background-color 0.3s, color 0.3s',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0',
+                },
+              },
+              '& .active .page-link': {
+                backgroundColor: '#3f51b5',
+                color: 'white',
+                borderColor: '#3f51b5',
+              },
+              '& .prev-next': {
+                padding: '8px 20px',
+                fontWeight: 'bold',
+                '&:hover': {
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                },
+              },
+            }}
+          >
+            <ReactPaginate
+              previousLabel={"Previous"}
+              nextLabel={"Next"}
+              breakLabel={"..."}
+              pageCount={Math.ceil(users.length / usersPerPage)}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={handlePageClick}
+              containerClassName="pagination"
+              pageClassName="page-item"
+              pageLinkClassName="page-link"
+              previousClassName="prev-next"
+              nextClassName="prev-next"
+              breakClassName="page-item"
+              activeClassName="active"
+            />
+          </Box>
+
         </CardContent>
       </Card>
     </Box>

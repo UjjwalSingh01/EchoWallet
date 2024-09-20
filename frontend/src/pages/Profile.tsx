@@ -13,6 +13,7 @@ import { Divider } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import BasicModal from '../component/BasicModal';
+import { z } from 'zod';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -29,9 +30,14 @@ const VisuallyHiddenInput = styled('input')({
 
 interface UserDetails {
   firstname: string,
-  lastname: string,
+  lastname?: string,
   email:string
 }
+
+const ResetPasswordSchema = z.object({
+  oldPassword: z.string().min(6, 'Password Must Be atleat 6 Characters Long'),
+  newPassword: z.string().min(6, 'Password Must Be atleast 6 Characters Long'),
+})
 
 export default function Profile() {
   const [user, setUser] = useState<UserDetails>({
@@ -47,6 +53,11 @@ export default function Profile() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   useEffect(() => {
       const fetchDetails = async () => {
@@ -59,23 +70,17 @@ export default function Profile() {
             setUser(response.data.user); 
             
           } catch (error) {
-            console.error("Error in Fetching Notification: ", error);
+            console.error("Error in Fetching Profile Details: ", error);
+            showSnackbar('Error in Fetching Profile Details', 'error');
           }
         };
     
         fetchDetails();
     }, [])
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setOpenSnackbar(true);
-  };
-
 
   async function handleUpdate() {
     try {
-      // handle name, email
       const response = await axios.post('http://localhost:8787/api/v1/user/decode/updateprofile', {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -95,7 +100,16 @@ export default function Profile() {
 
   async function resetPass() {
     try {
-      
+
+      const parseData = await ResetPasswordSchema.safeParse({ oldPassword, newPassword })
+      if(!parseData.success){
+        parseData.error.errors.forEach((error) => {
+          console.log(error.message)
+          showSnackbar(`${error.message}`, "error");
+        });
+        return;
+      }
+
       const response = await axios.post('http://localhost:8787/api/v1/user/decode/reset-pass', 
         {
           oldPassword,
@@ -118,19 +132,19 @@ export default function Profile() {
   return (
     <Box
       sx={{
-        display: 'flex',           // Enable flexbox
-        justifyContent: 'center',  // Center horizontally
-        alignItems: 'center',      // Center vertically
-        height: '110vh',           // Full viewport height
-        width: '100vw',            // Full viewport width
-        boxSizing: 'border-box',   // Include padding in element's width and height
-        padding: 2,                // Optional padding around the card
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '110vh',
+        width: '100vw',
+        boxSizing: 'border-box',
+        padding: 2,
       }}
     >
       <Card sx={{ 
-          width: '80%',           // Card takes 80% of the parent's width
-          height: '80%',          // Card takes 80% of the parent's height
-          display: 'flex',        // Ensure content is centered within the card
+          width: '80%',
+          height: '80%',
+          display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
           scrollbarWidth: 'none',
@@ -145,7 +159,7 @@ export default function Profile() {
           <Divider />
           <div className='m-8 flex gap-5 justify-center items-center'>
             <Avatar alt="User" src="/static/images/avatar/2.jpg" sx={{ width: 66, height: 66 }}>
-              {user.firstname.charAt(0)}{user.lastname.charAt(0)}
+              {user.firstname.charAt(0)}
             </Avatar>
             <Button
               component="label"
@@ -189,12 +203,12 @@ export default function Profile() {
         onClose={() => setOpenSnackbar(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         sx={{
-          width: '400px', // Control width
+          width: '400px',
           borderRadius: '8px',
           boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
           padding: '0',
           '& .MuiSnackbarContent-root': {
-            padding: 0, // Remove default padding
+            padding: 0,
           },
         }}
       >
@@ -205,15 +219,15 @@ export default function Profile() {
             background: snackbarSeverity === 'success'
               ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
               : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
-            color: '#fff', // Text color
-            fontSize: '1.1rem', // Larger font
-            fontWeight: 'bold', // Bold text
-            borderRadius: '8px', // Rounded corners
-            padding: '16px', // Padding inside Alert
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
-            width: '100%', // Take up the full Snackbar width
+            color: '#fff',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', 
+            width: '100%', 
             '& .MuiAlert-icon': {
-              fontSize: '28px', // Larger icon size
+              fontSize: '28px',
             },
           }}
         >

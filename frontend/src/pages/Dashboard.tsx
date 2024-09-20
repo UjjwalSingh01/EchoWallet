@@ -7,14 +7,19 @@ import { Box } from "@mui/system";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
-type BarData = Array<{ name: string; value: number }>;
-type PieData = {
+interface BarData { 
+  name: string; 
+  value: number 
+};
+
+interface PieData {
   foodExpenditure: number;
   shoppingExpenditure: number;
   travelExpenditure: number;
   otherExpenditure: number;
 };
-type AccountDetails = {
+
+interface AccountDetails {
   balance: number,
   currentMonthCredit: number,
   currentMonthDebit: number
@@ -26,7 +31,7 @@ export const Dashboard = () => {
     currentMonthCredit: 0,
     currentMonthDebit: 0
   });
-  const [barData, setBarData] = useState<BarData>([
+  const [barData, setBarData] = useState<BarData[]>([
     { name: 'Jan', value: 4000 },
     { name: 'Feb', value: 3000 },
     { name: 'Mar', value: 2000 },
@@ -52,7 +57,7 @@ export const Dashboard = () => {
         setPieData(response.data.pieData);
 
       } catch (error) {
-        console.error("Error in Fetching Notification: ", error);
+        console.error("Error in Fetching DashBoard Details: ", error);
       }
     };
 
@@ -61,15 +66,15 @@ export const Dashboard = () => {
 
   return (
     <Box
-    sx={{
-      display: 'flex',           
-      justifyContent: 'center',  
-      alignItems: 'center',      
-      height: '100vh',           
-      width: '100vw',            
-      boxSizing: 'border-box',   
-      padding: 2,                
-    }}
+      sx={{
+        display: 'flex',           
+        justifyContent: 'center',  
+        alignItems: 'center',      
+        height: '100vh',           
+        width: '100vw',            
+        boxSizing: 'border-box',   
+        padding: 2,                
+      }}
     >
       <Card  sx={{ 
           width: '80%',           

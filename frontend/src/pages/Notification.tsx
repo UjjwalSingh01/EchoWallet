@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Divider, useTheme } from '@mui/material';
 
-type NotificationType = {
+interface NotificationType {
   name: string;
   amount: number;
   type: string;
@@ -67,18 +67,18 @@ export default function Notification() {
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
-        boxShadow: 6, // Enhanced shadow
-        borderRadius: 3, // Rounded corners
+        boxShadow: 6, 
+        borderRadius: 3,
         bgcolor: 'background.paper',
         '&:hover': {
-          boxShadow: 12, // Shadow effect on hover
+          boxShadow: 12,
           transform: 'translateY(-5px)',
         },
         scrollbarWidth: 'none',
         '&::-webkit-scrollbar': {
           display: 'none',
         },
-        transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
+        transition: 'box-shadow 0.3s ease, transform 0.3s ease', 
       }}>
         <CardContent>
           <Typography sx={{ fontSize: { xs: 30, md: 44 }, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.primary" gutterBottom>
@@ -116,8 +116,8 @@ export default function Notification() {
               </AccordionSummary>
               <AccordionDetails sx={{ padding: 2 }}>
                 <Typography>
-                  {notification.type === "CREDIT"
-                    ? `${notification.name} has sent you ₹${notification.amount}`
+                  {notification.type === "CREDIT" ?
+                     `${notification.name} has sent you ₹${notification.amount}`
                     : `You sent ${notification.name} ₹${notification.amount}`
                   }
                 </Typography>
