@@ -31,7 +31,8 @@ const VisuallyHiddenInput = styled('input')({
 interface UserDetails {
   firstname: string,
   lastname?: string,
-  email:string
+  email:string,
+  balance: number
 }
 
 const ResetPasswordSchema = z.object({
@@ -43,7 +44,8 @@ export default function Profile() {
   const [user, setUser] = useState<UserDetails>({
     firstname: "John",
     lastname: "Doe",
-    email: "jd@gmail.com"
+    email: "jd@gmail.com",
+    balance: 1000
   });
 
   const [oldPassword, setOldPassword] = useState("");
@@ -76,12 +78,12 @@ export default function Profile() {
         };
     
         fetchDetails();
-    }, [])
+  }, [])
 
 
   async function handleUpdate() {
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/user/decode/updateprofile', {
+      await axios.post('http://localhost:8787/api/v1/user/decode/updateprofile', {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email
@@ -90,7 +92,7 @@ export default function Profile() {
       })
 
       showSnackbar("Profile updated successfully!", "success");
-      setUser(response.data.user)
+      // setUser(response.data.user)
 
     } catch (error) {
       showSnackbar("Error updating profile.", "error");
@@ -119,9 +121,13 @@ export default function Profile() {
         }
       )
 
-      showSnackbar("Password reset successfully!", "success");
-      console.log(response.data.message)
-      
+      if(response.status === 200){
+        showSnackbar("Password reset successfully!", "success");
+      }
+      else {
+        showSnackbar(`${response.data.error}`, "error");
+      }
+
     } catch (error) {
       showSnackbar("Error resetting password.", "error");
       console.error("Error in Reseting Password: ", error)

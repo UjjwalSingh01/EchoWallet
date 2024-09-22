@@ -53,7 +53,7 @@ export default function Login() {
         navigate('/Dashboard')
       }
       else {
-        showSnackbar('Server Error in Signin UnSuccessful', "error");
+        showSnackbar(`${response.data.error}`, "error");
       }
 
     } catch (error) {

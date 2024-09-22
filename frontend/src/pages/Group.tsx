@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import BasicModal from '../component/BasicModal';
-import TripCard from '../component/TripCard';
+import GroupCard from '../component/GroupCard';
 
 interface GroupDetails {
   id: string;
@@ -38,7 +38,7 @@ const Trips = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/get-group', {
+        const response = await axios.get('http://localhost:8787/api/v1/trip/decode/get-group', {
           headers: { "Authorization": localStorage.getItem("token") }
         });
         
@@ -72,18 +72,18 @@ const Trips = () => {
           display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
-          boxShadow: 6, // Enhanced shadow
-          borderRadius: 3, // Rounded corners
+          boxShadow: 6,
+          borderRadius: 3,
           bgcolor: 'background.paper',
           '&:hover': {
-            boxShadow: 12, // Shadow effect on hover
+            boxShadow: 12,
             transform: 'translateY(-5px)',
           },
           scrollbarWidth: 'none',
           '&::-webkit-scrollbar': {
             display: 'none',
           },
-          transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Smooth transition
+          transition: 'box-shadow 0.3s ease, transform 0.3s ease',
         }}
       >
         <CardContent>
@@ -98,12 +98,12 @@ const Trips = () => {
               marginBottom: 4,
             }}
           >
-            <BasicModal name='Add Group' action='Add' />
+            <BasicModal name='Add Group' action='Add Group' />
           </Box>
           {
             groups.map((group) => (
               <Link to={`/Groups/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
-                <TripCard key={group.id} data={group} />
+                <GroupCard key={group.id} data={group} />
               </Link>
             ))
           }

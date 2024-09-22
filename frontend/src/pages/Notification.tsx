@@ -13,7 +13,7 @@ import { Divider, useTheme } from '@mui/material';
 interface NotificationType {
   name: string;
   amount: number;
-  type: string;
+  type: 'DEBIT' | 'CREDIT';
 };
 
 export default function Notification() {

@@ -12,7 +12,7 @@ interface TransactionDetails {
   date: string;
   amount: number;
   type: 'DEBIT' | 'CREDIT';
-  category: string;
+  category: 'FOOD' | 'TRAVEL' | 'OTHER' | 'SHOPPING';
 }
 
 const Transaction = () => {
@@ -22,13 +22,13 @@ const Transaction = () => {
       date: "Wed, Oct 25, 8:30 AM",
       amount: 500,
       type: 'DEBIT',
-      category: "Travel"
+      category: "TRAVEL"
     } , {
       name:"John Doe",
       date: "Wed, Oct 25, 8:30 AM",
       amount: 500,
       type: 'CREDIT',
-      category: "Food"
+      category: "FOOD"
     }
   ]);
 

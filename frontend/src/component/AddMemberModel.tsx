@@ -5,6 +5,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { Alert, Snackbar } from "@mui/material";
 
 const style = {
   position: "absolute" as "absolute",
@@ -37,6 +38,16 @@ export default function AddGroupExpenseModal({ members, setMembers }: AddGroupEx
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setSearchResults([]);
@@ -45,11 +56,14 @@ export default function AddGroupExpenseModal({ members, setMembers }: AddGroupEx
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/your-api-endpoint', {
+        const response = await axios.get('http://localhost:8787/api/v1/user/users', {
           params: { searchTerm },
         });
-        setSearchResults(response.data);
+
+        setSearchResults(response.data.user);
+
       } catch (error) {
+        showSnackbar('Error in Fetching Users', 'error');
         console.error("Error fetching users: ", error);
       }
     };
@@ -108,6 +122,43 @@ export default function AddGroupExpenseModal({ members, setMembers }: AddGroupEx
           </Button>
         </Box>
       </Modal>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, 
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', 
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            width: '100%',
+            '& .MuiAlert-icon': {
+              fontSize: '28px',
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -54,7 +54,7 @@ detailRouter.get('/decode/getnotifications', async(c) => {
 
         return c.json({
             notification: notification
-        })
+        }, 200)
 
     } catch (error) {
         console.error("Server-Site Error in Getting Notification: ", error)
@@ -63,6 +63,7 @@ detailRouter.get('/decode/getnotifications', async(c) => {
         }, 500)
     }
 })
+
 
 
 detailRouter.get('/decode/getfriends', async (c) => {
@@ -97,7 +98,7 @@ detailRouter.get('/decode/getfriends', async (c) => {
 
         return c.json({
             friends: friendsDetails
-        });
+        }, 200);
 
     } catch (error) {
         console.error("Server-Side Error in Retrieving Friends: ", error);
@@ -139,7 +140,7 @@ detailRouter.post('/decode/addfriend', async (c) => {
 
         return c.json({
             message: 'Friend added successfully',
-        });
+        }, 200);
 
     } catch (error) {
         console.error("Server-Side Error in Adding Friends: ", error);
@@ -158,7 +159,7 @@ detailRouter.post('/decode/removefriend', async(c) => {
 
     try {
         const { id } = await c.req.json()
-        const userId = c.get('userId')
+        // const userId = c.get('userId')
 
         const response = await prisma.friend.findFirst({
             where:{
@@ -180,7 +181,7 @@ detailRouter.post('/decode/removefriend', async(c) => {
 
         return c.json({
             message: "Friend Removed Successfully"
-        })
+        }, 200)
 
     } catch (error) {
         console.error("Server-Side Error in Adding Friends: ", error);
@@ -297,7 +298,7 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
             value: expendituresByMonth[key], // The summed amount for that month-year
           }));
           
-        console.log(data);
+        // console.log(data);
 
         // return c.json({
         //     balance: userBalance?.balance || 0,
@@ -313,7 +314,7 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
             account: { balance , currentMonthCredit, currentMonthDebit },
             pieData: { foodExpenditure, shoppingExpenditure, travelExpenditure, otherExpenditure },
             barData: data
-        })
+        }, 200)
 
     } catch (error) {
         console.error("Server-Side Error in Retrieving Dashboard Details: ", error);
@@ -324,13 +325,14 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
 });
 
 
+
 detailRouter.post('/query', async(c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
     try {
-        const { query } = await c.req.json()
+        const { query } : { query: string } = await c.req.json()
 
         if(query === ""){
             return c.json({
@@ -352,7 +354,7 @@ detailRouter.post('/query', async(c) => {
 
         return c.json({
             message: 'Query Added Successfully'
-        })
+        }, 200)
         
     } catch (error) {
         console.error("Server-Side Error in Adding Query: ", error);

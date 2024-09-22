@@ -68,7 +68,7 @@ export default function Register() {
         navigate('/Dashboard');
       }
       else {
-        showSnackbar('Error in User Registration', 'error');
+        showSnackbar(`${response.data.error}`, 'error');
       }
 
     } catch (error) {

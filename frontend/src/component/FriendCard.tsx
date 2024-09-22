@@ -2,11 +2,12 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Button, CardActionArea, CardActions } from '@mui/material';
+import { Alert, Button, CardActionArea, CardActions, Snackbar } from '@mui/material';
 import SendMoneyModal from './SendModal';
 import image from '../assets/profile.jpg';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
+import { useState } from 'react';
 
 interface Friend {
   id: string;
@@ -16,15 +17,33 @@ interface Friend {
 
 export default function FriendCard({ data }: { data: Friend }) {
   const theme = useTheme();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   async function RemoveFriend() {
     try {
-      await axios.post('http://localhost:8787/api/v1/detail/decode/removefriend', {
+      const response = await axios.post('http://localhost:8787/api/v1/detail/decode/removefriend', {
         id: data.id
       }, {
         headers: { "Authorization": localStorage.getItem("token") }
       });
+
+      if(response.status === 200){
+        showSnackbar(`${response.data.message}`, 'success');
+      }
+      else {
+        showSnackbar(`${response.data.error}`, 'error');
+      }
+
     } catch (error) {
+      showSnackbar('Error in Removing Friend', 'error');
       console.error('Error in Removing Friend: ', error);
     }
   }
@@ -71,6 +90,43 @@ export default function FriendCard({ data }: { data: Friend }) {
           Remove
         </Button>
       </CardActions>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

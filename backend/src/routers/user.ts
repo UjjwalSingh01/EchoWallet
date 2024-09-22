@@ -36,7 +36,7 @@ userRouter.post('/register', async (c) => {
         const zodResult = RegisterSchema.safeParse(detail);
         if (!zodResult.success) {
             return c.json({
-                message: "Invalid Format",
+                error: "Invalid Format",
             }, 401);
         }
 
@@ -48,7 +48,7 @@ userRouter.post('/register', async (c) => {
 
         if (existingUser) {
             return c.json({
-                message: "User already exists",
+                error: "User already exists",
             }, 409);
         }
 
@@ -66,7 +66,7 @@ userRouter.post('/register', async (c) => {
             },
         });
 
-        const account = await prisma.account.create({
+        await prisma.account.create({
             data: {
                 userId: user.id,
                 balance: 0,
@@ -75,22 +75,20 @@ userRouter.post('/register', async (c) => {
 
         // Generate a JWT token
         const token = await sign({ id: user.id }, c.env.JWT_SECRET);
-        console.log(token)
+        // console.log(token)
 
         return c.json({
             token: token,
             user: {
                 firstname: user.firstname,
                 lastname: user.lastname,
-                email: user.email,
             },
         }, 200);
         
     } catch (error) {
         console.error("Server-Side Error In Signup: ", error);
         return c.json({
-            message: "An error occurred during sign-up",
-            error: error
+            error: "An error occurred during sign-up",
         }, 500);
     }
 })
@@ -108,7 +106,7 @@ userRouter.post('/login', async (c) => {
         const zodResult = await SignInSchema.safeParse(detail)
         if(!zodResult.success){
             return c.json({
-                message: "Invalid Format",
+                error: "Invalid Format",
             }, 401);
         }
 
@@ -120,27 +118,31 @@ userRouter.post('/login', async (c) => {
 
         if(response === null){
             return c.json({
-                message: "User Does not Exist"
+                error: "User Does not Exist"
             }, 401)
         }
 
         const isMatch = await bcrypt.compare(detail.password, response.password)
         if(!isMatch){
             return c.json({
-                message: "Invalid Credentials"
+                error: "Invalid Credentials"
             }, 401)
         }
 
         const token = await sign({ id: response.id }, c.env.JWT_SECRET);
 
         return c.json({
-            message: token,
+            token: token,
+            user: {
+                firstname: response.firstname,
+                lastname: response.lastname
+            }
         }, 200)
 
     } catch (error) {
         console.error("Server Site error in Signin: ", error)
         return c.json({
-            message: "Server Site error in Signin",
+            error: "Server Site error in Signin",
         }, 500);
     }
 })
@@ -149,7 +151,6 @@ userRouter.post('/login', async (c) => {
 userRouter.use("/decode/*", async (c, next) => {
     try {
         const token = c.req.header("authorization") || "";
-        // console.log("middle ware called");
 
         if(!token) {
             return c.json({
@@ -164,7 +165,7 @@ userRouter.use("/decode/*", async (c, next) => {
   
     } catch (err) {
         return c.json({
-            message: "You Are Not Logged In"
+            error: "You Are Not Logged In"
         }, 403)
     }
 })
@@ -205,7 +206,7 @@ userRouter.get('/users' , async(c) => {
 
         return c.json({
             user: users
-        })
+        }, 200)
 
     } catch(error) {
         console.error('Server-Side Error in Fetcing Users: ', error);
@@ -264,6 +265,7 @@ userRouter.get('/decode/userprofile', async(c) =>{
 })
 
 
+
 userRouter.post('/decode/addbalance', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
@@ -295,7 +297,7 @@ userRouter.post('/decode/addbalance', async (c) => {
             },
             data: {
                 balance: {
-                    increment: balance // Pass the balance as a number directly
+                    increment: balance
                 }
             }
         });
@@ -314,8 +316,6 @@ userRouter.post('/decode/addbalance', async (c) => {
 
 
 
-
-
 userRouter.post('/decode/resetpin', async(c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
@@ -327,8 +327,7 @@ userRouter.post('/decode/resetpin', async(c) => {
         
         if (!zodResult.success) {
             return c.json({
-                message: 'Pin Format Incorrect',
-                errors: zodResult.error.errors,
+                error: 'Pin Format Incorrect',
             }, 401);
         }
 
@@ -345,12 +344,12 @@ userRouter.post('/decode/resetpin', async(c) => {
 
         const isMatch = await bcrypt.compare(detail.oldPin, response.pin);
         if (!isMatch) {
-            return c.json({ message: "Invalid Old Pin" }, 401);
+            return c.json({ error: "Invalid Old Pin" }, 401);
         }
 
         if (detail.oldPin === detail.newPin) {
             return c.json({
-                message: "New Pin cannot be the same as the old pin"
+                error: "New Pin cannot be the same as the old pin"
             }, 400);
         }
 
@@ -376,7 +375,7 @@ userRouter.post('/decode/resetpin', async(c) => {
 
 interface UpdateDetails {
     firstname: string,
-    lastname: string,
+    lastname?: string,
     email: string
 }
 
@@ -390,7 +389,7 @@ userRouter.post('/decode/updateprofile', async(c) =>{
 
         const userId = c.get('userId');
 
-        const updateUser = await prisma.user.update({
+        const user = await prisma.user.update({
             where: {
                 id: userId
             },
@@ -398,17 +397,29 @@ userRouter.post('/decode/updateprofile', async(c) =>{
                 firstname: detail.firstname,
                 lastname: detail.lastname,
                 email: detail.email
+            },
+            select:{
+                firstname: true,
+                lastname: true,
+                email: true,
+                accounts:{
+                    select:{
+                        balance:true
+                    }
+                }
             }
         })
 
-        // if(!updateUser){
-        //     c.json({
-        //         error: ""
-        //     })
-        // }
+        // const balance = user.accounts[0]
 
         return c.json({
-            message: "User Credential Edited Successfully"
+            // user: {
+            //     firstname: user.firstname,
+            //     lastname: user.lastname,
+            //     email: user.email,
+            //     balance: balance.balance
+            // }
+            message: 'Profile Updated Successfully'
         }, 200)
 
     } catch (error) {
@@ -475,7 +486,7 @@ userRouter.post('/decode/reset-pass', async(c) =>{
         
         return c.json({
             message: "Password Reset Successful"
-        })
+        }, 200)
 
     } catch(error){
         console.error("Server-site Error in Resetting Password: ", error)

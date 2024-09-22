@@ -3,10 +3,11 @@ import {  PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { AddGroupTransactionSchema, AddGroupTransactionType } from "../schemas";
 import bcrypt from 'bcryptjs';
+import { verify } from "hono/jwt";
 
 export const groupRouter = new Hono<{
     Bindings: {
-        DATABASE_URL: string  // to specify that Database_url is a string;
+        DATABASE_URL: string  
         JWT_SECRET: string
     },
     Variables: {
@@ -33,6 +34,22 @@ function formatDate(date: Date){
     return formattedDateTime;
 }
 
+
+groupRouter.use("/decode/*", async (c, next) => {
+    const token = c.req.header("authorization") || "";
+  
+    try {
+        const user: any = await verify(token, c.env.JWT_SECRET)
+        c.set("userId", user.id);
+  
+        await next();
+  
+    } catch (err) {
+        return c.json({
+            error: "You Are Not Logged In"
+        }, 400)
+    }
+})
 
 groupRouter.get('/decode/get-group', async(c) => {
     const prisma = new PrismaClient({
@@ -79,7 +96,7 @@ groupRouter.get('/decode/get-group', async(c) => {
 
         return c.json({
             groups: validGroupDetails
-        });
+        }, 200);
         
     } catch (error) {
         console.error('Server-Site Error in Retrieving Group: ', error)
@@ -134,7 +151,7 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
             });
         
             if (!detail) {
-                return null; // Handle the case where user details are not found
+                return null;
             }
         
             return {
@@ -185,6 +202,7 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
                     shareAmount: true,
                 },
             });
+
         
             if (!share) {
                 return null;
@@ -193,6 +211,7 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
             const paidByMember = validMembers.find((member) => member.id === t.paidByUserId);
         
             return {
+                id: t.id,
                 name: t.description,
                 paidBy: paidByMember?.name || 'Unknown',
                 date: formatDate(t.transactionDate),
@@ -201,7 +220,6 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
             };
         }));
         
-        // Filter out any null transactions
         const validTransactionDetails = transactionDetails.filter((t) => t !== null);
 
         return c.json({
@@ -209,7 +227,7 @@ groupRouter.get('/decode/get-group/:id', async(c) => {
             title: title.title,
             members: validMembers,
             account: account,
-        });
+        }, 200);
 
     } catch (error) {
         console.error('Server-Site Error in Retrieving Group By Id: ', error)
@@ -246,10 +264,6 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
             }, 401)
         }
 
-        // if (details.amount <= 0) {
-        //     return c.json({ error: 'Amount must be greater than zero' }, 400);
-        // }
-
         const dbPin = await prisma.user.findFirst({
             where:{
                 id:userId
@@ -267,10 +281,34 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
 
         const isMatch = await bcrypt.compare(details.pin, dbPin.pin)
         if(!isMatch){
-            c.status(401)
             return c.json({
-                message: "Invalid Pin"
+                error: "Invalid Pin"
+            }, 401)
+        }
+
+        for(const id in details.shares) {
+            const user = await prisma.user.findFirst({
+                where:{
+                    id: id
+                }
             })
+
+            if(!user){
+                return c.json({
+                    error: 'Member Does Not Exists'
+                }, 404)
+            }
+        }
+
+        let amount = details.amount;
+        for(const id in details.shares) {
+            amount -= details.shares[id]
+        }
+
+        if(amount != 0){
+            return c.json({
+                error: 'The sum of all shares must equal the total amount.'
+            }, 400)
         }
 
         const transaction = await prisma.groupTransaction.create({
@@ -290,11 +328,44 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
                     shareAmount: details.shares[Id] 
                 }
             })
+
+            if(Id === userId) continue;
+
+            await prisma.groupMember.update({
+                where:{
+                    groupId_userId: {
+                        groupId: details.groupId,
+                        userId: Id
+                    }
+                },
+                data: {
+                    balance: {
+                        decrement: details.shares[Id]
+                    }
+                }
+            })
         }
+
+        await prisma.groupMember.update({
+            where: {
+                groupId_userId: {
+                    userId: userId,
+                    groupId: details.groupId
+                }
+            },
+            data:{
+                balance: {
+                    increment: details.shares[userId]
+                },
+                totalExpenditure: {
+                    increment: details.amount
+                },
+            }
+        })
 
         return c.json({
             message: "Group Transaction Added Successfully"
-        })
+        }, 200)
         
         
     } catch (error) {
@@ -304,6 +375,7 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
         }, 500)
     }
 })
+
 
 
 interface AddGroupDetail {
@@ -318,46 +390,34 @@ groupRouter.post('/decode/add-group', async(c) => {
 
     try {
         const detail: AddGroupDetail = await c.req.json();
-        const userId = c.get('userId')
+        const userId = c.get('userId'); 
 
         const createGroup = await prisma.group.create({
-            data:{
+            data: {
                 title: detail.title,
-                description: detail.description
-            }
-        })
+                description: detail.description,
+            },
+        });
 
+        
         await prisma.groupMember.create({
-            data:{
+            data: {
                 groupId: createGroup.id,
                 userId: userId,
                 balance: 0,
-                totalExpenditure: 0
-            }
-        })
-
-        // detail.members.push(userId)
-
-        // detail.members.map(async (m) => {
-        //     await prisma.groupMember.create({
-        //         data:{
-        //             groupId: createGroup.id,
-        //             userId: m,
-        //             balance: 0,
-        //             totalExpenditure: 0
-        //         }
-        //     })
-        // })
+                totalExpenditure: 0,
+            },
+        });
 
         return c.json({
-            message: "Group Added Successfully"
-        })
+            message: 'Group Added Successfully',
+        }, 200);
 
     } catch (error) {
-        console.error('Server-Site Error in Adding Group: ', error)
+        console.error('Server-Side Error in Adding Group: ', error);
         return c.json({
-            error: 'Server-Site Error in Adding Group'
-        }, 500)
+            error: 'Server-Side Error in Adding Group',
+        }, 500);
     }
 })
 
@@ -386,12 +446,147 @@ groupRouter.post('/add-group-member', async(c) => {
 
         return c.json({
             message: "Member Added Successfully"
-        })
+        }, 200)
         
     } catch (error) {
         console.error('Server-Site Error in Adding Member in a Group: ', error)
         return c.json({
             error: 'Server-Site Error in Adding Member in a Group'
+        }, 500)
+    }
+})
+
+
+groupRouter.post('/decode/delete-group', async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const { id }: { id: string } = await c.req.json();
+        // const userId = c.get('userId');
+
+        const group = await prisma.group.findFirst({
+            where:{
+                id: id
+            }
+        })
+
+        if(!group){
+            return c.json({
+                error: 'Group Does Not Exists'
+            }, 401)
+        }
+
+        await prisma.group.delete({
+            where: {
+                id: id
+            }
+        })
+
+        return c.json({
+            message: 'Group Deleted Successfully'
+        }, 200)
+
+    } catch (error) {
+        console.error('Server-Site Error in Deleting a Group: ', error)
+        return c.json({
+            error: 'Server-Site Error in Deleting a Group'
+        }, 500)
+    }
+})
+
+
+
+groupRouter.post('/delete-group-transaction', async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const { id }: { id: string } = await c.req.json();
+
+        const transaction = await prisma.groupTransaction.findFirst({
+            where:{
+                id: id
+            }
+        })
+
+        if(!transaction){
+            return c.json({
+                error: 'Group Transaction Does Not Exists'
+            }, 401)
+        }
+
+        await prisma.$transaction(async(prisma) => {
+            await prisma.groupMember.update({
+                where: {
+                    groupId_userId: {
+                        groupId: transaction.groupId,
+                        userId: transaction.paidByUserId
+                    }
+                },
+                data: {
+                    totalExpenditure: {
+                        decrement: transaction.amount
+                    },
+                }
+            });
+
+            const shares = await prisma.share.findMany({
+                where: {
+                    transactionId: transaction.id
+                }
+            });
+
+            await Promise.all(shares.map(async (share) => {
+
+                if(share.userId === transaction.paidByUserId){
+                    await prisma.groupMember.update({
+                        where: {
+                            groupId_userId: {
+                                groupId: transaction.groupId,
+                                userId: share.userId
+                            }
+                        },
+                        data: {
+                            balance: {
+                                decrement: share.shareAmount
+                            }
+                        }
+                    });
+                }
+
+                await prisma.groupMember.update({
+                    where: {
+                        groupId_userId: {
+                            groupId: transaction.groupId,
+                            userId: share.userId
+                        }
+                    },
+                    data: {
+                        balance: {
+                            increment: share.shareAmount
+                        }
+                    }
+                });
+            }));
+
+            await prisma.groupTransaction.delete({
+                where: {
+                    id: id
+                }
+            });
+        });
+
+        return c.json({
+            message: 'Group Transaction Deleted Successfully'
+        }, 200)
+        
+    } catch (error) {
+        console.error('Server-Site Error in Deleting a Group Transaction: ', error)
+        return c.json({
+            error: 'Server-Site Error in Deleting a Group Transaction'
         }, 500)
     }
 })

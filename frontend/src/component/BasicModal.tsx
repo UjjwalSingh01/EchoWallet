@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import axios from "axios";
+import { Alert, Snackbar } from "@mui/material";
 
 const style = {
   position: "absolute" as "absolute",
@@ -34,12 +35,22 @@ export default function BasicModal(props: data) {
   const [title, setTitle] = React.useState("")
   const [description, setDescription] = React.useState("")
 
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+
   async function handleClose(action: string) {
     
     try {
       if(action === "Reset"){
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpin', 
-          {
+        const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpin', {
             oldPin,
             newPin
           } , {
@@ -47,24 +58,33 @@ export default function BasicModal(props: data) {
           }
         )
 
-        console.log(response.data.message)
+        if(response.status === 200){
+          showSnackbar(`${response.data.message}`, 'success');
+        }
+        else {
+          showSnackbar(`${response.data.error}`, 'error');
+        }
       }
 
       else if(action === 'Add') {
-        // add balance
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/addbalance', 
-          {
+        
+        const response = await axios.post('http://localhost:8787/api/v1/user/decode/addbalance',{
             balance
           } , {
             headers: { "Authorization": localStorage.getItem("token") },
           }
         )
 
-        console.log(response.data.message)
+        if(response.status === 200){
+          showSnackbar(`${response.data.message}`, 'success');
+        }
+        else {
+          showSnackbar(`${response.data.error}`, 'error');
+        }
+
       }
-      else {
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/add-group', 
-          {
+      else if(action === 'Add Group'){
+        const response = await axios.post('http://localhost:8787/api/v1/trip/decode/add-group', {
             title, 
             description
           } , {
@@ -72,10 +92,17 @@ export default function BasicModal(props: data) {
           }
         )
 
-        console.log(response.data.message)
+        if(response.status === 200){
+          showSnackbar(`${response.data.message}`, 'success');
+        }
+        else {
+          showSnackbar(`${response.data.error}`, 'error');
+        }
+
       }
 
     } catch (error) {
+      showSnackbar('Error in ProfileModal', 'error');
       console.error("Error in ProfileModal: ", error)
     }
     
@@ -160,12 +187,43 @@ export default function BasicModal(props: data) {
             </Button>
         </Box>
       </Modal>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0,
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            width: '100%',
+            '& .MuiAlert-icon': {
+              fontSize: '28px',
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
-
-
-
-// Add Group .. title & description 
-// Add Member .. select m search & add members
-// Add Grp Tn Detail .. description & amount & groupId & shares among members

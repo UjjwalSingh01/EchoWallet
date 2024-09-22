@@ -67,7 +67,6 @@ transactionRouter.use("/decode/*", async (c, next) => {
 // }
 
 transactionRouter.get('/decode/gettransaction', async (c) => {
-
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate());
@@ -75,7 +74,6 @@ transactionRouter.get('/decode/gettransaction', async (c) => {
     try {
         const userId: string = c.get('userId');
 
-        // Fetch the account ID associated with the user
         const account = await prisma.account.findFirst({
             where: {
                 userId: userId,
@@ -85,11 +83,10 @@ transactionRouter.get('/decode/gettransaction', async (c) => {
 
         if (!account) {
             return c.json({
-                message: "Account not found",
+                error: "Account not found",
             }, 404);
         }
 
-        // Fetch transactions using the account ID
         const transactions = await prisma.transaction.findMany({
             where: {
                 accountId: account.id, // Use the account ID instead of user ID
@@ -98,11 +95,10 @@ transactionRouter.get('/decode/gettransaction', async (c) => {
 
         if (transactions.length === 0) {
             return c.json({
-                message: "No transactions found",
+                error: "No transactions found",
             }, 404);
         }
 
-        // Function to fetch recipient details by recipientId
         async function getRecipientDetails(recipientId: string) {
             return prisma.user.findUnique({
                 where: { id: recipientId },
@@ -110,7 +106,6 @@ transactionRouter.get('/decode/gettransaction', async (c) => {
             });
         }
 
-        // Fetch recipient details for all transactions and combine them
         const transactionsWithRecipientDetails = await Promise.all(transactions.map(async (transaction) => {
             const recipient = await getRecipientDetails(transaction.recipientId);
             return {
@@ -144,13 +139,6 @@ transactionRouter.get('/decode/gettransaction', async (c) => {
 
 
 
-// type transferDetails = {
-//     to: string,
-//     amount: number,
-//     pin: string,
-//     category: TransactionCategory,
-//     description? : string
-// }  
 
 transactionRouter.post('/decode/transaction', async(c) => {
 
@@ -160,7 +148,6 @@ transactionRouter.post('/decode/transaction', async(c) => {
 
     try {
         const detail: TransferType = await c.req.json()
-        console.log(detail)
         const zodResult = await TransferSchema.safeParse(detail)
         if(!zodResult.success){
             return c.json({
@@ -300,7 +287,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
         })
 
         if (response.error) {
-            return c.json({ message: response.error }, { status: response.status }); // Fix: Use object for status
+            return c.json({ error: response.error }, { status: response.status });
         }
 
         return c.json({ message: response.message }, 200);

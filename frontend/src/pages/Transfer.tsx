@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import AddReactionRoundedIcon from '@mui/icons-material/AddReactionRounded';
 import ReactPaginate from 'react-paginate';
-import { IconButton, Avatar, Divider } from '@mui/material';
+import { IconButton, Avatar, Divider, Snackbar, Alert } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import SendMoneyModal from '../component/SendModal';
@@ -32,10 +32,20 @@ export default function Transfer() {
   const [clickedIcons, setClickedIcons] = useState<{ [key: string]: boolean }>({});
   const usersPerPage = 10;
 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/user/decode/users', {
+        const response = await axios.get('http://localhost:8787/api/v1/user/users', {
           params: { searchTerm }
         });
 
@@ -45,6 +55,7 @@ export default function Transfer() {
         })));        
 
       } catch (error) {
+        showSnackbar("Error fetching users:", 'error');
         console.error("Error fetching users:", error);
       }
     };
@@ -56,11 +67,28 @@ export default function Transfer() {
     setCurrentPage(data.selected);
   };
 
-  const handleAddClick = (id: string) => {
+  async function handleAddClick(id: string) {
     setClickedIcons(prevState => ({
       ...prevState,
       [id]: true,
     }));
+
+    try {
+      const response = await axios.post('http://localhost:8787/api/v1/detail/decode/addfriend', {
+        id: id
+      })
+
+      if(response.status === 200){
+        showSnackbar(`${response.data.message}`, 'success');
+      }
+      else {
+        showSnackbar(`${response.data.error}`, 'error');
+      }
+
+    } catch (error) {
+      showSnackbar('Error in Adding Friend', 'error');
+      console.error('Error in Adding Friend: ', error)
+    }
   };
 
   // const displayedUsers = Array.isArray(users)
@@ -224,6 +252,43 @@ export default function Transfer() {
 
         </CardContent>
       </Card>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{
+          width: '400px', // Control width
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '0',
+          '& .MuiSnackbarContent-root': {
+            padding: 0, // Remove default padding
+          },
+        }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{
+            background: snackbarSeverity === 'success'
+              ? 'linear-gradient(90deg, rgba(70,203,131,1) 0%, rgba(129,212,250,1) 100%)'
+              : 'linear-gradient(90deg, rgba(229,57,53,1) 0%, rgba(244,143,177,1) 100%)',
+            color: '#fff', // Text color
+            fontSize: '1.1rem', // Larger font
+            fontWeight: 'bold', // Bold text
+            borderRadius: '8px', // Rounded corners
+            padding: '16px', // Padding inside Alert
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Add shadow
+            width: '100%', // Take up the full Snackbar width
+            '& .MuiAlert-icon': {
+              fontSize: '28px', // Larger icon size
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
