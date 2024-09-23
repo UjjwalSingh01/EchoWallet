@@ -8,6 +8,8 @@ import { Box, useMediaQuery } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface GroupDetails {
   id: string;
@@ -31,6 +33,8 @@ export default function GroupCard({data} : {data: GroupDetails}) {
     setOpenSnackbar(true);
   };
 
+  const navigate = useNavigate()
+
   async function onDelete() {
     try {
       const response = await axios.post('http://localhost:8787/api/v1/trip/decode/delete-group', {
@@ -45,6 +49,8 @@ export default function GroupCard({data} : {data: GroupDetails}) {
       else {
         showSnackbar(`${response.data.error}`, 'error');
       }
+
+      navigate('/Groups')
 
     } catch (error) {
       showSnackbar('Error in Deleting Group', 'error');
@@ -92,6 +98,7 @@ export default function GroupCard({data} : {data: GroupDetails}) {
         <Typography variant="subtitle1" sx={{ color: data.balance > 0 ? 'green' : 'red' }}>
           Balance: ₹{Math.abs(data.balance)}
         </Typography>
+        <Link to={`/Groups/${data.id}`} state={data.id} style={{ textDecoration: 'none' }}>Learn More</Link>
       </CardContent>
       
       {isSmallScreen ? (

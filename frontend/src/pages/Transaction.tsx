@@ -21,12 +21,6 @@ const Transaction = () => {
       name:"John Doe",
       date: "Wed, Oct 25, 8:30 AM",
       amount: 500,
-      type: 'DEBIT',
-      category: "TRAVEL"
-    } , {
-      name:"John Doe",
-      date: "Wed, Oct 25, 8:30 AM",
-      amount: 500,
       type: 'CREDIT',
       category: "FOOD"
     }

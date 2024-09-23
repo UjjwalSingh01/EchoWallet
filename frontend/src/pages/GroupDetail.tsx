@@ -38,42 +38,12 @@ const TripDetail = () => {
 
   const [title, setTitle] = useState('Title')
   const [account, setAccount] = useState<AccountDetails>({
-    balance: 1000,
-    totalExpenditure: 1000
+    balance: 0,
+    totalExpenditure: 0
   })
-  const [members, setMembers] = useState<MembersDetails[]>([
-    {
-      id: '1',
-      name: 'John Doe'
-    } , 
-    {
-      id: '2',
-      name: 'Jane Edo'
-    } ,
-    {
-      id: '3',
-      name: 'Anje Ode'
-    }
-  ])
+  const [members, setMembers] = useState<MembersDetails[]>([])
 
-  const [groupDetail, setGroupDetail] = useState<TransactionDetails[]>([
-    {
-      id: '1',
-      name:'John Doe',
-      paidBy: 'Doe John',
-      date: 'Wed, Oct 25, 8:30 AM',
-      share: 200,
-      amount: 1000
-    } ,
-    {
-      id: '2',
-      name:'John Doe',
-      paidBy: 'Doe John',
-      date: 'Wed, Oct 25, 8:30 AM',
-      share: 200,
-      amount: 1000
-    }
-  ])
+  const [groupDetail, setGroupDetail] = useState<TransactionDetails[]>([])
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -107,7 +77,7 @@ const TripDetail = () => {
 
   async function onDelete(id: string) {
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/trip/decode/delete-group-transaction', {
+      const response = await axios.post('http://localhost:8787/api/v1/trip/delete-group-transaction', {
         id: id
       }, {
         headers: { "Authorization": localStorage.getItem("token") }
@@ -184,7 +154,7 @@ const TripDetail = () => {
               <GrpCard heading='Expenditure' amount={account.totalExpenditure} />
             </div>
             <div className='flex flex-col justify-center my-5'>
-              <AddMemberModel members={members} setMembers={setMembers} />
+              <AddMemberModel groupId={id} members={members} setMembers={setMembers} />
               <AddGroupExpenseModal members={members} groupId={id} />
             </div>
           </div>

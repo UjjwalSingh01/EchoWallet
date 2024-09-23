@@ -9,9 +9,8 @@ import axios from 'axios';
 import { z } from 'zod';
 
 
-const querySchema = z.object({
-  query: z.string().min(6, 'Query Must Be Atleast 6 Characters Long')
-})
+const querySchema = z.string().min(6, 'Query Must Be Atleast 6 Characters Long')
+
 
 const HelpSupport = () => {
   const [query, setQuery] = useState('')
@@ -29,7 +28,7 @@ const HelpSupport = () => {
 
   async function SubmitQuery() {
     try {
-      const parseData = await querySchema.safeParseAsync(query);
+      const parseData = await querySchema.safeParse(query);
       
       if (!parseData.success) {
         showSnackbar(`Validation Error`, "error");
@@ -42,15 +41,11 @@ const HelpSupport = () => {
       });
 
       showSnackbar("Query Added successfully!", "success");
-      setQuery('')
+      setQuery("")
   
     } catch (error) {
       showSnackbar("Error Adding Query.", "error");
-      if (axios.isAxiosError(error)) {
-        console.error("HTTP Error: ", error.response?.data || error.message);
-      } else {
-        console.error("Unexpected Error: ", error);
-      }
+      console.error("Error Adding Query: ", error)
     }
   }
   

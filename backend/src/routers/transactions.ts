@@ -170,7 +170,6 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 }
             })
 
-
             if (!from) {
                 return { error: "Sender User Does Not Exist", status: 404 };
             }
@@ -196,7 +195,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
 
             const to = await tx.user.findFirst({
                 where: {
-                    id: userId
+                    id: detail.to
                 },
                 select:{
                     firstname: true,
@@ -237,7 +236,8 @@ transactionRouter.post('/decode/transaction', async(c) => {
                 data: {
                     balance: {
                         increment: detail.amount,
-                    }
+                    },
+                    
                 },
                 
             })
@@ -267,7 +267,7 @@ transactionRouter.post('/decode/transaction', async(c) => {
             await tx.notification.create({
                 data: {
                   userId: userId,
-                  name: `${to.firstname} ${to.lastname}`,
+                  name: to.firstname + " " + to.lastname,
                   amount: detail.amount,
                   type: 'DEBIT',
                 },

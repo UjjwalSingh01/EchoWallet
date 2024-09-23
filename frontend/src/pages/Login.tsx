@@ -48,7 +48,7 @@ export default function Login() {
       if(response.status == 200){
         showSnackbar('Signin Successful', "success");
 
-        localStorage.setItem("token", response.data.message)
+        localStorage.setItem("token", response.data.token)
 
         navigate('/Dashboard')
       }

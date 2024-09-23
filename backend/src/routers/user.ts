@@ -441,11 +441,9 @@ userRouter.post('/decode/reset-pass', async(c) =>{
         const detail: ResetPasswordType = await c.req.json();
         const zodResult = ResetPasswordSchema.safeParse(detail)
         if(!zodResult.success){
-            c.status(401);
             return c.json({
-                message: "Invalid Password format",
-                errors: zodResult.error.errors,
-            });
+                error: "Invalid Password format",
+            }, 401);
         }
 
         const userId = c.get('userId')

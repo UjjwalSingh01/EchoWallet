@@ -47,7 +47,7 @@ export default function SendMoneyModal({id}:{id: string}) {
     setOpenSnackbar(true);
   };
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<FormData>({
+  const { register, watch, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(schema),
     // defaultValues: {
     //   amount: '',
@@ -173,7 +173,7 @@ export default function SendMoneyModal({id}:{id: string}) {
             sx={{ marginBottom: 3, width: '100%' }}
           />
 
-          <Button variant="outlined" onClick={handleSubmit(handleClose)} sx={{ width: '100%' }}>Send</Button>
+          <Button variant="outlined" onClick={() => (handleClose())} sx={{ width: '100%' }}>Send</Button>
         </Box>
       </Modal>
       <Snackbar

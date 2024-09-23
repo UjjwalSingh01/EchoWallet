@@ -31,18 +31,12 @@ export const Dashboard = () => {
     currentMonthCredit: 0,
     currentMonthDebit: 0
   });
-  const [barData, setBarData] = useState<BarData[]>([
-    { name: 'Jan', value: 4000 },
-    { name: 'Feb', value: 3000 },
-    { name: 'Mar', value: 2000 },
-    { name: 'Apr', value: 2780 },
-    { name: 'May', value: 1890 },
-  ]);
+  const [barData, setBarData] = useState<BarData[]>([]);
   const [pieData, setPieData] = useState<PieData>({
-    foodExpenditure: 10,
-    shoppingExpenditure: 20,
-    travelExpenditure: 20,
-    otherExpenditure: 10
+    foodExpenditure: 0,
+    shoppingExpenditure: 0,
+    travelExpenditure: 0,
+    otherExpenditure: 0
   });
 
   useEffect(() => {

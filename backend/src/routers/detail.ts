@@ -116,16 +116,16 @@ detailRouter.post('/decode/addfriend', async (c) => {
     }).$extends(withAccelerate())
 
     try {
-        const { friendId } = await c.req.json();
+        const {id} : {id: string} = await c.req.json();
         const userId: string = c.get('userId');
 
         const response = await prisma.user.findFirst({
             where:{
-                id: friendId
+                id: id
             }
         })
 
-        if(response === null){
+        if(!response){
             return c.json({
                 error: "Friend Does Not exist"
             }, 400)
@@ -134,7 +134,7 @@ detailRouter.post('/decode/addfriend', async (c) => {
         await prisma.friend.create({
             data: {
                 userId: userId,
-                friendId: friendId,
+                friendId: id,
             }
         });
 

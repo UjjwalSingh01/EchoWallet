@@ -72,7 +72,10 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
         groupId,
         shares,
         pin
-      });
+      },{
+        headers: { "Authorization": localStorage.getItem("token") },
+      }
+    );
 
       if(response.status === 200){
         showSnackbar(`${response.data.message}`, 'success');
@@ -83,6 +86,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
 
       setError(null);
       handleClose();
+
     } catch (error) {
       showSnackbar('Error in AddGroupExpenseModal', 'error');
       console.error("Error in AddGroupExpenseModal: ", error);

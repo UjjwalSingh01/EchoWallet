@@ -355,7 +355,7 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
             },
             data:{
                 balance: {
-                    increment: details.shares[userId]
+                    decrement: (details.amount - details.shares[userId])
                 },
                 totalExpenditure: {
                     increment: details.amount
@@ -551,7 +551,7 @@ groupRouter.post('/delete-group-transaction', async(c) => {
                         },
                         data: {
                             balance: {
-                                decrement: share.shareAmount
+                                increment: (transaction.amount - share.shareAmount)
                             }
                         }
                     });

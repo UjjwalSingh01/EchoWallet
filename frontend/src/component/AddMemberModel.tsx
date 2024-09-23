@@ -27,9 +27,10 @@ interface MemberDetail {
 interface AddGroupExpenseModalProps {
   members: MemberDetail[];
   setMembers: (members: MemberDetail[]) => void;
+  groupId: string
 }
 
-export default function AddGroupExpenseModal({ members, setMembers }: AddGroupExpenseModalProps) {
+export default function AddGroupExpenseModal({ members, setMembers, groupId }: AddGroupExpenseModalProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<MemberDetail[]>([]);
@@ -60,7 +61,10 @@ export default function AddGroupExpenseModal({ members, setMembers }: AddGroupEx
           params: { searchTerm },
         });
 
-        setSearchResults(response.data.user);
+        setSearchResults(response.data.user.map((user: { firstname: string; lastname: string; id: string }) => ({
+          id: user.id,
+          name: `${user.firstname || ''} ${user.lastname || ''}`.trim(),
+        })));
 
       } catch (error) {
         showSnackbar('Error in Fetching Users', 'error');
@@ -71,11 +75,29 @@ export default function AddGroupExpenseModal({ members, setMembers }: AddGroupEx
     fetchUsers();
   }, [searchTerm]);
 
-  const handleSelectUser = (user: MemberDetail) => {
-    if (!members.find((member) => member.id === user.id)) {
-      setMembers([...members, user]);
-    } else {
-      setError('User is already added to the group.');
+  async function handleSelectUser(user: MemberDetail) {
+    try {
+      if (!members.find((member) => member.id === user.id)) {
+        setMembers([...members, user]);
+      } else {
+        setError('User is already added to the group.');
+      }
+
+      const response = await axios.post('http://localhost:8787/api/v1/trip/add-group-member', {
+        userId: user.id,
+        groupId: groupId
+      })
+
+      if(response.status === 200){
+        showSnackbar(`${response.data.message}`, 'success');
+      }
+      else {
+        showSnackbar(`${response.data.error}`, 'error');
+      }
+
+    } catch(error){
+      showSnackbar('Error in Adding Member', 'error');
+      console.error("Error Adding Member: ", error);
     }
   };
 

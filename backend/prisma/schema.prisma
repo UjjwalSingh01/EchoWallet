@@ -147,7 +147,3 @@ enum TransactionCategory {
   TRAVEL
   OTHER
 }
-
-
-
-// hrr member ko kitna dena hai ua lena hai?

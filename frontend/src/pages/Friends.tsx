@@ -14,28 +14,7 @@ interface FriendDetail {
 };
 
 const Friends = () => {
-  const [friends, setFriends] = useState<FriendDetail[]>([
-    {
-      id: '1',
-      firstname: 'John',
-      lastname: 'Doe'
-    }, 
-    {
-      id: '1',
-      firstname: 'John',
-      lastname: 'Doe'
-    },
-    {
-      id: '1',
-      firstname: 'John',
-      lastname: 'Doe'
-    },
-    {
-      id: '1',
-      firstname: 'John',
-      lastname: 'Doe'
-    }
-  ]);
+  const [friends, setFriends] = useState<FriendDetail[]>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {

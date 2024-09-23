@@ -52,7 +52,9 @@ export default function Transfer() {
         setUsers(response.data.user.map((user: { firstname: string; lastname: string; id: string }) => ({
           id: user.id,
           name: `${user.firstname || ''} ${user.lastname || ''}`.trim(),
-        })));        
+        })));
+        
+        console.log(response.data.user)
 
       } catch (error) {
         showSnackbar("Error fetching users:", 'error');
@@ -68,14 +70,14 @@ export default function Transfer() {
   };
 
   async function handleAddClick(id: string) {
-    setClickedIcons(prevState => ({
-      ...prevState,
-      [id]: true,
-    }));
 
     try {
+      console.log(id)
+
       const response = await axios.post('http://localhost:8787/api/v1/detail/decode/addfriend', {
         id: id
+      }, {
+        headers: { "Authorization": localStorage.getItem("token") },
       })
 
       if(response.status === 200){
@@ -84,6 +86,11 @@ export default function Transfer() {
       else {
         showSnackbar(`${response.data.error}`, 'error');
       }
+
+      setClickedIcons(prevState => ({
+        ...prevState,
+        [id]: true,
+      }));
 
     } catch (error) {
       showSnackbar('Error in Adding Friend', 'error');
@@ -175,15 +182,15 @@ export default function Transfer() {
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
                   {user.name}
                 </Typography>
-                <Box sx={{justifyContent:'center', alignItems:'center'}}>
+                <Box sx={{ justifyContent:'center', alignItems:'center'}}>
                   {!clickedIcons[user.id] && (
                     <IconButton color="primary" onClick={() => handleAddClick(user.id)} sx={{ marginRight: {md:'none', lg:1} }}>
                       <AddReactionRoundedIcon />
                     </IconButton>
                   )}
-                  <IconButton color="secondary">
+                  <span>
                     <SendMoneyModal id={user.id} />
-                  </IconButton>
+                  </span>
                 </Box>
               </Card>
             ))}

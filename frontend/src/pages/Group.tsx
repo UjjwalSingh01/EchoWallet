@@ -4,7 +4,6 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import BasicModal from '../component/BasicModal';
 import GroupCard from '../component/GroupCard';
@@ -18,22 +17,7 @@ interface GroupDetails {
 }
 
 const Trips = () => {
-  const [groups, setGroups] = useState<GroupDetails[]>([
-    {
-      id: '1',
-      title: 'Group 1',
-      description: 'Goa',
-      date: '24/11/23',
-      balance: 5000,
-    },
-    {
-      id: '2',
-      title: 'Group 2',
-      description: 'Night Out',
-      date: '24/11/24',
-      balance: -1000,
-    },
-  ]);
+  const [groups, setGroups] = useState<GroupDetails[]>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -102,9 +86,7 @@ const Trips = () => {
           </Box>
           {
             groups.map((group) => (
-              <Link to={`/Groups/${group.id}`} state={group.id} style={{ textDecoration: 'none' }}>
-                <GroupCard key={group.id} data={group} />
-              </Link>
+              <GroupCard key={group.id} data={group} />
             ))
           }
         </CardContent>

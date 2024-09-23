@@ -41,12 +41,14 @@ const ResetPasswordSchema = z.object({
 })
 
 export default function Profile() {
-  const [user, setUser] = useState<UserDetails>({
-    firstname: "John",
-    lastname: "Doe",
-    email: "jd@gmail.com",
-    balance: 1000
-  });
+  const [user, setUser] = useState<UserDetails>(
+  {
+    firstname: "",
+    lastname: "",
+    email: "",
+    balance: 0
+  }
+);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -68,6 +70,8 @@ export default function Profile() {
             const response = await axios.get('http://localhost:8787/api/v1/user/decode/userprofile', {
               headers: { "Authorization": localStorage.getItem("token") }
             });
+
+            console.log(response.data.user)
             
             setUser(response.data.user); 
             
@@ -179,11 +183,11 @@ export default function Profile() {
             </Button>
           </div>
           <div className='flex flex-col md:flex-row md:gap-6 justify-around mx-6 lg:mx-20'>
-            <TextField id="outlined-basic" label='First Name' onChange={(e) => {user.firstname = e.target.value}} defaultValue={user.firstname} variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
-            <TextField id="outlined-basic" label="Last Name" onChange={(e) => {user.lastname = e.target.value}} defaultValue={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
+            <TextField id="outlined-basic" label='First Name'onChange={(e) => setUser({ ...user, firstname: e.target.value })} value={user.firstname}  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
+            <TextField id="outlined-basic" label="Last Name" onChange={(e) => setUser({ ...user, lastname: e.target.value})} value={user.lastname} variant="outlined"  sx={{ marginBottom: 5, width: {xs:'100%', lg:'40%'}}} />
           </div>
           <div className='flex justify-center items-center mx-6 md:mx-28'>
-            <TextField id="outlined-basic" label="Email" onChange={(e) => {user.email = e.target.value}} defaultValue={user.email} variant="outlined"  sx={{ marginBottom: 5, width:{xs:'100%', lg:'35%'}}} />
+            <TextField id="outlined-basic" label="Email" onChange={(e) => ({...user, email: e.target.value})} value={user.email} variant="outlined" sx={{ marginBottom: 5, width:{xs:'100%', lg:'35%'}}} />
           </div>
           <div className='flex flex-col md:flex-row justify-around items-center mb-10'>
             <Button onClick={() => {handleUpdate()}} variant="outlined">Update</Button>

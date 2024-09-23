@@ -50,6 +50,7 @@ export default function BasicModal(props: data) {
     
     try {
       if(action === "Reset"){
+
         const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpin', {
             oldPin,
             newPin
@@ -67,7 +68,11 @@ export default function BasicModal(props: data) {
       }
 
       else if(action === 'Add') {
-        
+        if(balance < 0){
+          showSnackbar('Balance Cannot Be Negative', 'error');
+          return;
+        }
+
         const response = await axios.post('http://localhost:8787/api/v1/user/decode/addbalance',{
             balance
           } , {
