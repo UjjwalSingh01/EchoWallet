@@ -106,6 +106,8 @@ export default function BasicModal(props: data) {
 
       }
 
+      window.location.reload();
+
     } catch (error) {
       showSnackbar('Error in ProfileModal', 'error');
       console.error("Error in ProfileModal: ", error)

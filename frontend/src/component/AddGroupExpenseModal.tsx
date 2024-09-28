@@ -85,6 +85,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
       }
 
       setError(null);
+      window.location.reload();
       handleClose();
 
     } catch (error) {
@@ -122,6 +123,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
             variant="outlined"
             type="number"
             onChange={(e) => setAmount(parseInt(e.target.value, 10))}
+            inputProps={{ min: 0 }}
           />
 
           {members.map((member) => (
@@ -132,7 +134,8 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
               label={member.name}
               variant="outlined"
               type="number"
-              onChange={(e) => handleAddShare(member.id, parseInt(e.target.value, 10))}
+              onChange={(e) => handleAddShare(member.id, parseInt(e.target.value, 10) || 0)}
+              inputProps={{ min: 0 }}
             />
           ))}
           

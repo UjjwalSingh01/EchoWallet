@@ -90,6 +90,8 @@ const TripDetail = () => {
         showSnackbar(`${response.data.error}`, 'error');
       }
 
+      window.location.reload();
+
     } catch (error) {
       showSnackbar('Error in Deleting Group Transaction', 'error');
       console.error('Error in Deleting Group Transaction: ', error)

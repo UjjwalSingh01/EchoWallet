@@ -62,7 +62,7 @@ const AddGroupTransactionSchema = z.object({
     groupId: z.string().nonempty("Group ID is required"),
     shares: z.record(
       z.string(), // The userId (key) must be a string
-      z.number().positive("Share amount must be positive") // Each user's share (value) must be a positive number
+      z.number().min(0).positive("Share amount must be positive") // Each user's share (value) must be a positive number
     ).refine((shares) => Object.keys(shares).length > 0, {
       message: "Shares cannot be empty",
     }), // Custom validation to ensure the shares object is not empty

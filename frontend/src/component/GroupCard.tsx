@@ -50,6 +50,7 @@ export default function GroupCard({data} : {data: GroupDetails}) {
         showSnackbar(`${response.data.error}`, 'error');
       }
 
+      window.location.reload();
       navigate('/Groups')
 
     } catch (error) {

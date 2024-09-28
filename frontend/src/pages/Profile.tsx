@@ -96,7 +96,7 @@ export default function Profile() {
       })
 
       showSnackbar("Profile updated successfully!", "success");
-      // setUser(response.data.user)
+      window.location.reload();
 
     } catch (error) {
       showSnackbar("Error updating profile.", "error");

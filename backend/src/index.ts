@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { userRouter } from './routers/user';
 import { transactionRouter } from './routers/transactions';
-import { groupRouter } from './routers/trips';
+import { groupRouter } from './routers/group';
 import { detailRouter } from './routers/detail';
 
 const app = new Hono()
