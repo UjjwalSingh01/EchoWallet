@@ -66,8 +66,12 @@ export default function Sidebar() {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const [open, setOpen] = useState(true);
+  const [user, setUser] = useState("")
 
   useEffect(() => {
+    const user: string = localStorage.getItem("user") || "username"
+    setUser(user)
+
     if (isLargeScreen) {
       setOpen(true);
     } else {
@@ -98,7 +102,7 @@ export default function Sidebar() {
               sx={{ width: 64, height: 64, mb: 2, border: `2px solid ${theme.palette.background.paper}` }}
             />
             <Typography variant="h6" noWrap>
-              Hello, Username
+              Hello, {user}
             </Typography>
           </Box>
         )}

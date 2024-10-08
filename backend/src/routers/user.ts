@@ -79,10 +79,7 @@ userRouter.post('/register', async (c) => {
 
         return c.json({
             token: token,
-            user: {
-                firstname: user.firstname,
-                lastname: user.lastname,
-            },
+            user: `${user.firstname} ${user.lastname}`
         }, 200);
         
     } catch (error) {
@@ -103,7 +100,7 @@ userRouter.post('/login', async (c) => {
     try {
 
         const detail: SignInType = await c.req.json();
-        const zodResult = await SignInSchema.safeParse(detail)
+        const zodResult = SignInSchema.safeParse(detail)
         if(!zodResult.success){
             return c.json({
                 error: "Invalid Format",
@@ -133,10 +130,7 @@ userRouter.post('/login', async (c) => {
 
         return c.json({
             token: token,
-            user: {
-                firstname: response.firstname,
-                lastname: response.lastname
-            }
+            user: `${response.firstname} ${response.lastname}`
         }, 200)
 
     } catch (error) {

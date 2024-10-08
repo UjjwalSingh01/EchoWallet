@@ -64,6 +64,7 @@ export default function Register() {
         showSnackbar('User Registered Successfully!', 'success');
 
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", response.data.user);
 
         navigate('/Dashboard');
       }
