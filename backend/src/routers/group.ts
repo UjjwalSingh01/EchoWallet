@@ -257,8 +257,10 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
         const userId = c.get('userId')
 
         const details : AddGroupTransactionType = await c.req.json()
-        const zodResult = await AddGroupTransactionSchema.safeParse(details)
+        console.log(details)
+        const zodResult = AddGroupTransactionSchema.safeParse(details)
         if(!zodResult.success){
+            console.log(zodResult.error.errors)
             return c.json({
                 error: 'Invalid Format'
             }, 401)

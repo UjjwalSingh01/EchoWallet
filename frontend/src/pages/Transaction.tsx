@@ -16,15 +16,7 @@ interface TransactionDetails {
 }
 
 const Transaction = () => {
-  const [transactions, setTransactions] = useState<TransactionDetails[]>([
-    {
-      name:"John Doe",
-      date: "Wed, Oct 25, 8:30 AM",
-      amount: 500,
-      type: 'CREDIT',
-      category: "FOOD"
-    }
-  ]);
+  const [transactions, setTransactions] = useState<TransactionDetails[]>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {

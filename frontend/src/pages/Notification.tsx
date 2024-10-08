@@ -18,18 +18,7 @@ interface NotificationType {
 
 export default function Notification() {
   const theme = useTheme();
-  const [notifications, setNotifications] = useState<NotificationType[]>([
-    {
-      name: "John Doe",
-      amount: 500,
-      type: "DEBIT"
-    },
-    {
-      name: "John Doe",
-      amount: 500,
-      type: "CREDIT"
-    }
-  ]);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {

@@ -178,7 +178,7 @@ const TripDetail = () => {
                    {group.date}
                   </Typography>
                   <Typography sx={{alignContent:'end'}}>
-                   {group.share}
+                  ₹{group.share}
                   </Typography> 
                   <Divider orientation="vertical" variant="middle" flexItem />
                   <Box display="flex" justifyContent="center" alignItems="center">

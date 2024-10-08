@@ -37,38 +37,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function App() {
-  const { theme } = useThemeContext();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path='/' element={<Login />} />
-            <Route path='/register' element={<Register />} />
-            <Route path='/Dashboard' element={isAuthenticated ? <Dashboard /> : <Navigate to='/' />} />
-            <Route path='/Transaction' element={isAuthenticated ? <Transaction /> : <Navigate to='/' />} />
-            <Route path='/Transfer' element={isAuthenticated ?<Transfer /> : <Navigate to='/' />} />
-            <Route path='/Groups' element={isAuthenticated ?<Trips /> : <Navigate to='/' />} />
-            <Route path='/Groups/:id' element={isAuthenticated ?<TripDetail /> : <Navigate to='/' />} />
-            <Route path='/Profile' element={isAuthenticated ?<Profile /> : <Navigate to='/' />} />
-            <Route path='/Friends' element={isAuthenticated ?<Friends /> : <Navigate to='/' />} />
-            <Route path='/CreditCard' element={<CreditCard />} />
-            <Route path='/Notification' element={isAuthenticated ? <Notification /> : <Navigate to='/' />} />
-            <Route path='/Help & Support' element={<HelpSupport />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </ThemeProvider>
-  );
-}
-
-
-
-
 // function App() {
 //   const { theme } = useThemeContext();
 //   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -81,15 +49,15 @@ function App() {
 //           <Routes>
 //             <Route path='/' element={<Login />} />
 //             <Route path='/register' element={<Register />} />
-//             <Route path='/Dashboard' element={<Dashboard />} />
-//             <Route path='/Transaction' element={<Transaction /> } />
-//             <Route path='/Transfer' element={<Transfer />} />
-//             <Route path='/Groups' element={<Trips />} />
-//             <Route path='/Groups/:id' element={<TripDetail />} />
-//             <Route path='/Profile' element={<Profile />} />
-//             <Route path='/Friends' element={<Friends />} />
+//             <Route path='/Dashboard' element={isAuthenticated ? <Dashboard /> : <Navigate to='/' />} />
+//             <Route path='/Transaction' element={isAuthenticated ? <Transaction /> : <Navigate to='/' />} />
+//             <Route path='/Transfer' element={isAuthenticated ?<Transfer /> : <Navigate to='/' />} />
+//             <Route path='/Groups' element={isAuthenticated ?<Trips /> : <Navigate to='/' />} />
+//             <Route path='/Groups/:id' element={isAuthenticated ?<TripDetail /> : <Navigate to='/' />} />
+//             <Route path='/Profile' element={isAuthenticated ?<Profile /> : <Navigate to='/' />} />
+//             <Route path='/Friends' element={isAuthenticated ?<Friends /> : <Navigate to='/' />} />
 //             <Route path='/CreditCard' element={<CreditCard />} />
-//             <Route path='/Notification' element={<Notification />} />
+//             <Route path='/Notification' element={isAuthenticated ? <Notification /> : <Navigate to='/' />} />
 //             <Route path='/Help & Support' element={<HelpSupport />} />
 //           </Routes>
 //         </Layout>
@@ -97,5 +65,37 @@ function App() {
 //     </ThemeProvider>
 //   );
 // }
+
+
+
+
+function App() {
+  const { theme } = useThemeContext();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path='/' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/Dashboard' element={<Dashboard />} />
+            <Route path='/Transaction' element={<Transaction /> } />
+            <Route path='/Transfer' element={<Transfer />} />
+            <Route path='/Groups' element={<Trips />} />
+            <Route path='/Groups/:id' element={<TripDetail />} />
+            <Route path='/Profile' element={<Profile />} />
+            <Route path='/Friends' element={<Friends />} />
+            <Route path='/CreditCard' element={<CreditCard />} />
+            <Route path='/Notification' element={<Notification />} />
+            <Route path='/Help & Support' element={<HelpSupport />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+}
 
 export default App;

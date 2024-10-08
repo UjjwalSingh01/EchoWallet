@@ -63,7 +63,7 @@ export default function GroupCard({data} : {data: GroupDetails}) {
     <Card 
       sx={{ 
         display: 'flex', 
-        flexDirection: isSmallScreen ? 'column' : 'row', // Change layout for small screens
+        flexDirection: isSmallScreen ? 'column' : 'row', 
         // width: '95%', 
         margin: 5, 
         boxShadow: 4, 

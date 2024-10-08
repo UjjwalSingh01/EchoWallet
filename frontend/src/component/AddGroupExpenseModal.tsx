@@ -50,9 +50,10 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const handleAddShare = (id: string, value: number) => {
-    setShares(prev => ({ ...prev, [id]: value }));
-  };
+  const handleAddShare = (id: string, value: string) => {
+    const amount = parseInt(value);
+    setShares(prev => ({ ...prev, [id]: amount || 0 }));
+  };  
 
   const validateShares = () => {
     const totalShares = Object.values(shares).reduce((a, b) => a + b, 0);
@@ -60,6 +61,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
   };
 
   const handleSubmit = async () => {
+    console.log(shares)
     if (!validateShares()) {
       setError("The sum of all shares must equal the total amount.");
       return;
@@ -89,8 +91,8 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
       handleClose();
 
     } catch (error) {
-      showSnackbar('Error in AddGroupExpenseModal', 'error');
-      console.error("Error in AddGroupExpenseModal: ", error);
+      showSnackbar('Error in Frontend AddGroupExpenseModal', 'error');
+      console.error("Error in Frontend AddGroupExpenseModal: ", error);
     }
   };
 
@@ -134,7 +136,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
               label={member.name}
               variant="outlined"
               type="number"
-              onChange={(e) => handleAddShare(member.id, parseInt(e.target.value, 10) || 0)}
+              onChange={(e) => handleAddShare(member.id, e.target.value)}
               inputProps={{ min: 0 }}
             />
           ))}

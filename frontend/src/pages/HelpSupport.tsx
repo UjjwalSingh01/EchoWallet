@@ -28,7 +28,7 @@ const HelpSupport = () => {
 
   async function SubmitQuery() {
     try {
-      const parseData = await querySchema.safeParse(query);
+      const parseData = querySchema.safeParse(query);
       
       if (!parseData.success) {
         showSnackbar(`Validation Error`, "error");

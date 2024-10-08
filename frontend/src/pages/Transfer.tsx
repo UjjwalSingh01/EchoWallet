@@ -16,16 +16,7 @@ interface User {
 }
 
 export default function Transfer() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      name: "John Doe",
-    },
-    {
-      id: '2',
-      name: "King Slayer",
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);

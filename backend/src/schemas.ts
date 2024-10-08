@@ -58,11 +58,11 @@ type TransferType = z.infer<typeof TransferSchema>
 const AddGroupTransactionSchema = z.object({
     pin: z.string().length(6, 'Pin must be exactly 6 digits').regex(/^\d{6}$/, 'Pin must only contain digits'),
     description: z.string().nonempty("Description is required"),
-    amount: z.number().positive("Amount must be positive"),
+    amount: z.number().min(0, "Amount must be positive"),
     groupId: z.string().nonempty("Group ID is required"),
     shares: z.record(
       z.string(), // The userId (key) must be a string
-      z.number().min(0).positive("Share amount must be positive") // Each user's share (value) must be a positive number
+      z.number().min(0, "Share amount must be positive") // Each user's share (value) must be a positive number
     ).refine((shares) => Object.keys(shares).length > 0, {
       message: "Shares cannot be empty",
     }), // Custom validation to ensure the shares object is not empty
