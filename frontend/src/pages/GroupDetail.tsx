@@ -172,7 +172,7 @@ const TripDetail = () => {
                 <div className='flex justify-between px-2 my-2'>
                   <Typography>
                     <p className='text-md'>{group.name}</p>
-                    <span className='text-sm text-slate-400'>{group.paidBy} <span className='text-xs'>{group.amount}</span></span>
+                    <span className='text-sm text-slate-400'>{group.paidBy} <span className='text-xs'>₹{group.amount}</span></span>
                   </Typography>
                   <Typography sx={{alignContent:'end'}} >
                    {group.date}

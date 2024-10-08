@@ -74,8 +74,11 @@ userRouter.post('/register', async (c) => {
         });
 
         // Generate a JWT token
-        const token = await sign({ id: user.id }, c.env.JWT_SECRET);
-        // console.log(token)
+        const payload = {
+            id: user.id,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        }
+        const token = await sign(payload, c.env.JWT_SECRET);
 
         return c.json({
             token: token,
@@ -126,7 +129,11 @@ userRouter.post('/login', async (c) => {
             }, 401)
         }
 
-        const token = await sign({ id: response.id }, c.env.JWT_SECRET);
+        const payload = {
+            id: response.id,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        }
+        const token = await sign(payload, c.env.JWT_SECRET);
 
         return c.json({
             token: token,
