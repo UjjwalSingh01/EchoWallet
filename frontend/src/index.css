@@ -1,5 +1,25 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c:wght@800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Math:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Otomanopee+One:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
+/* Initial hidden state for sections */
+.section {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  
+  /* Slide-in animation */
+  .slide-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  

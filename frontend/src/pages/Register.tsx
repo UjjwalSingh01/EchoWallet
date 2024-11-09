@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import image from '../assets/Lofi Sunrise ♡.jpeg';
+import image from '../assets/cover.webp';
 import { z } from 'zod';
 import { Alert, Snackbar } from "@mui/material";
 
@@ -80,7 +80,7 @@ export default function Register() {
   }
 
   return (
-    <div className="bg-cover bg-center h-screen w-screen" style={{ backgroundImage: `url(${image})` }}>
+    <div className="bg-cover bg-center h-svh w-full" style={{ backgroundImage: `url(${image})` }}>
       <div className="flex flex-col items-center justify-center h-full">
         <div className="w-full max-w-md bg-white bg-opacity-80 rounded-lg shadow-lg dark:border dark:bg-gray-800 dark:bg-opacity-70 dark:border-gray-700 transform transition-all hover:scale-105 duration-300">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -134,7 +134,7 @@ export default function Register() {
                 Register
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Don’t have an account yet? <Link to="/" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login</Link>
+                Don’t have an account yet? <Link to="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login</Link>
               </p>
             </form>
           </div>

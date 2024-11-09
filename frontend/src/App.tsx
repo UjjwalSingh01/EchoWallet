@@ -18,13 +18,14 @@ import CssBaseline from '@mui/material/CssBaseline';
 import HelpSupport from './pages/HelpSupport';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
+import Desktop from './pages/LandingPage';
 
 // Component to conditionally render Sidebar and Navbar
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
   // Paths where Sidebar & Navbar should NOT appear
-  const hideLayout = ['/', '/register'].includes(location.pathname);
+  const hideLayout = ['/', '/register', '/login'].includes(location.pathname);
 
   return (
     <>
@@ -79,7 +80,8 @@ function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path='/' element={<Login />} />
+            <Route path='/' element={<Desktop />} />
+            <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/Dashboard' element={<Dashboard />} />
             <Route path='/Transaction' element={<Transaction /> } />

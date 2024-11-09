@@ -2,7 +2,7 @@ import axios from "axios"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
-import image from '../assets/Lofi Sunrise ♡.jpeg'
+import image from '../assets/cover.webp'
 import { z } from 'zod';
 import { Alert, Snackbar } from "@mui/material"
 
@@ -64,7 +64,7 @@ export default function Login() {
 
   return (
     <div className="bg-cover bg-center h-screen w-screen" style={{ backgroundImage: `url(${image})` }}>
-      <div className="flex flex-col items-end justify-center px-6 py-8 mx-auto h-full lg:py-0">
+      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-full lg:py-0">
         <div className="w-full max-w-md bg-white bg-opacity-70 rounded-lg shadow dark:border dark:bg-gray-800 dark:bg-opacity-70 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-5xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl dark:text-white">
