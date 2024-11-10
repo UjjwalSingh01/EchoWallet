@@ -11,8 +11,8 @@ export type DesktopType = {
   className?: string;
 };
 
-const Desktop: React.FC<DesktopType> = ({ className = "" }) => {
-  const sectionsRef = useRef<HTMLDivElement[]>([]);
+const Desktop = ({ className = "" }) => {
+  const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const Desktop: React.FC<DesktopType> = ({ className = "" }) => {
   }, []);
 
   return (
-    <main className={`w-full bg-darkslateblue flex flex-col items-center py-24 px-6 ${className}`} ref={(el) => sectionsRef.current[0] = el!}>
+    <main className={`w-full bg-darkslateblue flex flex-col items-center py-24 px-6 ${className}`} ref={(el) => { if (el) sectionsRef.current[0] = el as HTMLDivElement; }}>
       <div className="w-[90%] flex flex-col justify-center items-center">
         <header className="w-full py-6 flex justify-between items-center px-6 text-lavenderblush text-2xl font-outfit">
           <b className="font-roboto text-[44px] font-bold text-white">EchoWallet</b>

@@ -6,6 +6,7 @@ import image from '../assets/cover.webp';
 import { z } from 'zod';
 import { Alert, Snackbar } from "@mui/material";
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -52,7 +53,7 @@ export default function Register() {
         return;
       }
 
-      const response = await axios.post('http://localhost:8787/api/v1/user/register', {
+      const response = await axios.post(`${BACKEND_URL}/user/register`, {
         firstname: firstname,
         lastname: lastname,
         email: email,

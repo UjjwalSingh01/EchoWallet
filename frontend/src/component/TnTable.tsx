@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Chip } from '@mui/material';
 import { transactionCategoryStyles, formatAmount, formatDateTime, removeSpecialCharacters } from "../lib/utils";
 
@@ -23,7 +23,6 @@ const CategoryBadge: FC<CategoryBadgeProps> = ({ category }) => {
     borderColor,
     backgroundColor,
     textColor,
-    chipBackgroundColor,
   } = transactionCategoryStyles[category as keyof typeof transactionCategoryStyles] || transactionCategoryStyles.default;
 
   return (

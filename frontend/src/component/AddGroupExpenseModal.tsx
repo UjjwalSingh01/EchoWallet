@@ -7,6 +7,8 @@ import axios from "axios";
 import { useState } from "react";
 import { Alert, Snackbar } from "@mui/material";
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -68,7 +70,7 @@ export default function AddGroupExpenseModal({ members, groupId }: { members: Me
     }
 
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/trip/decode/add-group-transaction', {
+      const response = await axios.post(`${BACKEND_URL}/trip/decode/add-group-transaction`, {
         description,
         amount,
         groupId,

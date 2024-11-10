@@ -9,7 +9,9 @@ import axios from 'axios';
 import AddMemberModel from '../component/AddMemberModel';
 import AddGroupExpenseModal from '../component/AddGroupExpenseModal';
 import GrpCard from '../component/GrpAmountCard';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from '@mui/icons-material/Delete'
+
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
 
 interface TransactionDetails {
   id: string;
@@ -58,7 +60,7 @@ const TripDetail = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:8787/api/v1/trip/decode/get-group/${id}`, {
+        const response = await axios.get(`${BACKEND_URL}/trip/decode/get-group/${id}`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
 
@@ -77,7 +79,7 @@ const TripDetail = () => {
 
   async function onDelete(id: string) {
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/trip/delete-group-transaction', {
+      const response = await axios.post(`${BACKEND_URL}/trip/delete-group-transaction`, {
         id: id
       }, {
         headers: { "Authorization": localStorage.getItem("token") }

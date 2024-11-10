@@ -15,6 +15,8 @@ import Alert from '@mui/material/Alert';
 import BasicModal from '../component/BasicModal';
 import { z } from 'zod';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -67,7 +69,7 @@ export default function Profile() {
       const fetchDetails = async () => {
     
           try {
-            const response = await axios.get('http://localhost:8787/api/v1/user/decode/userprofile', {
+            const response = await axios.get(`${BACKEND_URL}/user/decode/userprofile`, {
               headers: { "Authorization": localStorage.getItem("token") }
             });
 
@@ -87,7 +89,7 @@ export default function Profile() {
 
   async function handleUpdate() {
     try {
-      await axios.post('http://localhost:8787/api/v1/user/decode/updateprofile', {
+      await axios.post(`${BACKEND_URL}/user/decode/updateprofile`, {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email
@@ -107,7 +109,7 @@ export default function Profile() {
   async function resetPass() {
     try {
 
-      const parseData = await ResetPasswordSchema.safeParse({ oldPassword, newPassword })
+      const parseData = ResetPasswordSchema.safeParse({ oldPassword, newPassword })
       if(!parseData.success){
         parseData.error.errors.forEach((error) => {
           console.log(error.message)
@@ -116,7 +118,7 @@ export default function Profile() {
         return;
       }
 
-      const response = await axios.post('http://localhost:8787/api/v1/user/decode/reset-pass', 
+      const response = await axios.post(`${BACKEND_URL}/user/decode/reset-pass`, 
         {
           oldPassword,
           newPassword

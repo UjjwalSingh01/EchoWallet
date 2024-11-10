@@ -7,7 +7,9 @@ import { detailRouter } from './routers/detail';
 
 const app = new Hono()
 
-app.use('/api/*',cors());
+app.use('*', cors({
+    origin: 'https://echowallet.netlify.app',
+}));
 
 app.route("api/v1/user", userRouter)
 app.route("api/v1/transaction", transactionRouter)
@@ -15,7 +17,6 @@ app.route("api/v1/trip", groupRouter)
 app.route("api/v1/detail", detailRouter)
 
 export default app
-
 
 
 

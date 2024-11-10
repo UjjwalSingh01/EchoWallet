@@ -22,7 +22,6 @@ export const userRouter = new Hono<{
 }>();
 
 
-
 userRouter.post('/register', async (c) => {
 
     const prisma = new PrismaClient({

@@ -8,6 +8,8 @@ import axios from 'axios';
 import BasicModal from '../component/BasicModal';
 import GroupCard from '../component/GroupCard';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface GroupDetails {
   id: string;
   title: string;
@@ -22,7 +24,7 @@ const Trips = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/trip/decode/get-group', {
+        const response = await axios.get(`${BACKEND_URL}/trip/decode/get-group`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
         

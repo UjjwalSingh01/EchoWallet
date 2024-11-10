@@ -7,6 +7,12 @@ import { Box } from "@mui/system";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
+// const BACKEND_URL = process.env.NODE_ENV === "production" ? 
+//           "https://echowallet-backend.dragneeln949.workers.dev" : 
+//           "http://localhost:8787/api/v1"
+
 interface BarData { 
   name: string; 
   value: number 
@@ -42,7 +48,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/dashboardDetails', {
+        const response = await axios.get(`${BACKEND_URL}/detail/decode/dashboardDetails`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
 

@@ -7,6 +7,8 @@ import FriendCard from '../component/FriendCard';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface FriendDetail { 
   id: string,
   firstname: string,
@@ -19,7 +21,7 @@ const Friends = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/getfriends', {
+        const response = await axios.get(`${BACKEND_URL}/detail/decode/getfriends`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
         setFriends(response.data.friends); 

@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { Alert, Snackbar } from "@mui/material"
 
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
@@ -40,7 +42,7 @@ export default function Login() {
         return;
       }
 
-      const response = await axios.post('http://localhost:8787/api/v1/user/login', {
+      const response = await axios.post(`${BACKEND_URL}/user/login`, {
           email: email,
           password: password        
       })

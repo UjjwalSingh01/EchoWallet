@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
@@ -16,8 +16,6 @@ import { useThemeContext } from "./theme/ThemeContextProvider";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import HelpSupport from './pages/HelpSupport';
-import { useSelector } from 'react-redux';
-import { RootState } from './redux/store';
 import Desktop from './pages/LandingPage';
 
 // Component to conditionally render Sidebar and Navbar
@@ -72,7 +70,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const { theme } = useThemeContext();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   return (
     <ThemeProvider theme={theme}>

@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import SendMoneyModal from '../component/SendModal';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface User {
   id: string,
   name: string
@@ -36,7 +38,7 @@ export default function Transfer() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/user/users', {
+        const response = await axios.get(`${BACKEND_URL}/user/users`, {
           params: { searchTerm }
         });
 
@@ -65,7 +67,7 @@ export default function Transfer() {
     try {
       console.log(id)
 
-      const response = await axios.post('http://localhost:8787/api/v1/detail/decode/addfriend', {
+      const response = await axios.post(`${BACKEND_URL}/detail/decode/addfriend`, {
         id: id
       }, {
         headers: { "Authorization": localStorage.getItem("token") },

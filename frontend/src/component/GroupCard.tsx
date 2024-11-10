@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface GroupDetails {
   id: string;
   title: string;
@@ -37,7 +39,7 @@ export default function GroupCard({data} : {data: GroupDetails}) {
 
   async function onDelete() {
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/trip/decode/delete-group', {
+      const response = await axios.post(`${BACKEND_URL}/trip/decode/delete-group`, {
         id: data.id
       }, {
         headers: { "Authorization": localStorage.getItem("token") },

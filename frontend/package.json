@@ -22,6 +22,7 @@
     "@types/axios": "^0.14.0",
     "@types/react-router-dom": "^5.3.3",
     "@types/redux-persist": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.5",
     "chart.js": "^4.4.4",
     "flowbite": "^2.4.1",

@@ -7,6 +7,8 @@ import Box from '@mui/material/Box';
 import UserTable from "../component/TransactionTable";
 import { Divider } from "@mui/material";
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface TransactionDetails {
   name: string;
   date: string;
@@ -21,7 +23,7 @@ const Transaction = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/transaction/decode/gettransaction', {
+        const response = await axios.get(`${BACKEND_URL}/transaction/decode/gettransaction`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
 

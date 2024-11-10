@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
@@ -69,7 +71,7 @@ export default function SendMoneyModal({id}:{id: string}) {
 
   async function handleClose() {
     try {
-      const result = await schema.safeParse({
+      const result = schema.safeParse({
         amount: amount,
         pin: pin,
         category: category,
@@ -84,7 +86,7 @@ export default function SendMoneyModal({id}:{id: string}) {
         return;
       }
 
-      const response = await axios.post('http://localhost:8787/api/v1/transaction/decode/transaction',
+      const response = await axios.post(`${BACKEND_URL}/transaction/decode/transaction`,
         {
           to: id,
           amount: parseInt(amount),

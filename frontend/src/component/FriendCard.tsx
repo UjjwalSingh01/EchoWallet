@@ -9,6 +9,8 @@ import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface Friend {
   id: string;
   firstname: string;
@@ -29,7 +31,7 @@ export default function FriendCard({ data }: { data: Friend }) {
 
   async function RemoveFriend() {
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/detail/decode/removefriend', {
+      const response = await axios.post(`${BACKEND_URL}/detail/decode/removefriend`, {
         id: data.id
       }, {
         headers: { "Authorization": localStorage.getItem("token") }

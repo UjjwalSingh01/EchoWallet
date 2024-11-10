@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Divider, useTheme } from '@mui/material';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 interface NotificationType {
   name: string;
   amount: number;
@@ -23,7 +25,7 @@ export default function Notification() {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/detail/decode/getnotifications', {
+        const response = await axios.get(`${BACKEND_URL}/detail/decode/getnotifications`, {
           headers: { "Authorization": localStorage.getItem("token") }
         });
 

@@ -7,6 +7,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Alert, Snackbar } from "@mui/material";
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -57,7 +59,7 @@ export default function AddGroupExpenseModal({ members, setMembers, groupId }: A
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:8787/api/v1/user/users', {
+        const response = await axios.get(`${BACKEND_URL}/user/users`, {
           params: { searchTerm },
         });
 
@@ -83,7 +85,7 @@ export default function AddGroupExpenseModal({ members, setMembers, groupId }: A
         setError('User is already added to the group.');
       }
 
-      const response = await axios.post('http://localhost:8787/api/v1/trip/add-group-member', {
+      const response = await axios.post(`${BACKEND_URL}/trip/add-group-member`, {
         userId: user.id,
         groupId: groupId
       })

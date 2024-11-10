@@ -7,6 +7,8 @@ import TextField from "@mui/material/TextField";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
+
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -51,7 +53,7 @@ export default function BasicModal(props: data) {
     try {
       if(action === "Reset"){
 
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/resetpin', {
+        const response = await axios.post(`${BACKEND_URL}/user/decode/resetpin`, {
             oldPin,
             newPin
           } , {
@@ -73,7 +75,7 @@ export default function BasicModal(props: data) {
           return;
         }
 
-        const response = await axios.post('http://localhost:8787/api/v1/user/decode/addbalance',{
+        const response = await axios.post(`${BACKEND_URL}/user/decode/addbalance`,{
             balance
           } , {
             headers: { "Authorization": localStorage.getItem("token") },
@@ -89,7 +91,7 @@ export default function BasicModal(props: data) {
 
       }
       else if(action === 'Add Group'){
-        const response = await axios.post('http://localhost:8787/api/v1/trip/decode/add-group', {
+        const response = await axios.post(`${BACKEND_URL}/trip/decode/add-group`, {
             title, 
             description
           } , {

@@ -71,7 +71,7 @@ export default function InteractivePieChart({ dataset }: { dataset: Dataset }) {
             dataKey="value"
             isAnimationActive={true}
           >
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={COLORS[index % COLORS.length]}

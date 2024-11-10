@@ -8,9 +8,9 @@ import { useState } from 'react';
 import axios from 'axios';
 import { z } from 'zod';
 
+const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
 
 const querySchema = z.string().min(6, 'Query Must Be Atleast 6 Characters Long')
-
 
 const HelpSupport = () => {
   const [query, setQuery] = useState('')
@@ -36,7 +36,7 @@ const HelpSupport = () => {
         return; 
       }
   
-      await axios.post('http://localhost:8787/api/v1/detail/query', {
+      await axios.post(`${BACKEND_URL}/detail/query`, {
         query: parseData.data 
       });
 
