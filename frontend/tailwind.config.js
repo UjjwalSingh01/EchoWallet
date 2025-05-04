@@ -9,13 +9,13 @@ module.exports = {
         deepskyblue: "#2bc9f4",
         snow: "#fffafa",
       },
-      spacing: {},
       fontFamily: {
         roboto: "Roboto",
-        "roboto-flex": "'Roboto Flex'",
-        "otomanopee-one": "'Otomanopee One'",
-        "noto-sans-math": "'Noto Sans Math'",
-        "rounded-mplus-1c": "'Rounded Mplus 1c'",
+        "roboto-flex": "'Roboto Flex', sans-serif",
+        "otomanopee-one": "'Otomanopee One', sans-serif",
+        "noto-sans-math": "'Noto Sans Math', sans-serif",
+        "rounded-mplus-1c": "'Rounded Mplus 1c', sans-serif",
+        montserrat: "'Montserrat', sans-serif",
       },
     },
     fontSize: {

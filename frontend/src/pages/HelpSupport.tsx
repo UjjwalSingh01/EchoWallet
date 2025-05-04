@@ -112,7 +112,7 @@ const HelpSupport = () => {
               onChange={(e)=>{setQuery(e.target.value)}}
             />
 
-            <Button variant='contained' sx={{width:'30%', alignSelf:'center'}} onClick={() => {SubmitQuery()}}>Add Query</Button>
+            <Button variant='contained' sx={{width:'30%', alignSelf:'center',}} onClick={() => {SubmitQuery()}}>Add Query</Button>
             
           </Box>
         </CardContent>
