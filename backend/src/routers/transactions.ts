@@ -4,6 +4,7 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { verify } from 'hono/jwt'
 import { TransferSchema, TransferType } from "../schemas";
 import bcrypt from 'bcryptjs';
+import { formatDate } from "../../utils/formatDate";
 
 export const transactionRouter = new Hono<{
     Bindings: {
@@ -15,50 +16,26 @@ export const transactionRouter = new Hono<{
     }
 }>();
 
-// paginated transaction ... transfer ... balance credits debits 
-
-
-function formateDate(date: Date){
-    const dateTimeOptions: Intl.DateTimeFormatOptions = {
-        weekday: "short", // abbreviated weekday name (e.g., 'Mon')
-        month: "short", // abbreviated month name (e.g., 'Oct')
-        day: "numeric", // numeric day of the month (e.g., '25')
-        hour: "numeric", // numeric hour (e.g., '8')
-        minute: "numeric", // numeric minute (e.g., '30')
-        hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
-    };
-
-    const formattedDateTime: string = new Date(date).toLocaleString(
-        "en-US",
-        dateTimeOptions
-    );
-
-    return formattedDateTime;
-}
-
 
 transactionRouter.use("/decode/*", async (c, next) => {
-    try {
-        const token = c.req.header("authorization") || "";
-
-        if(!token) {
-            return c.json({
-                error: "Token Not Given"
-            }, 400)
-        }
-
-        const user: any = await verify(token, c.env.JWT_SECRET)
-        c.set("userId", user.id);
-  
-        await next();
-  
-    } catch (err) {
-        return c.json({
-            message: "You Are Not Logged In"
-        }, 403)
+  try {
+    const token = c.req.header("authorization") || "";
+    if(!token) {
+      return c.json({
+        error: "Token Not Given"
+      }, 400)
     }
-})
+    const user: any = await verify(token, c.env.JWT_SECRET)
+    c.set("userId", user.id);
 
+    await next();
+
+  } catch (err) {
+    return c.json({
+      message: "You Are Not Logged In"
+    }, 403)
+  }
+})
 
 // type TransactionDetails = {
 //     name: string, 
@@ -67,81 +44,74 @@ transactionRouter.use("/decode/*", async (c, next) => {
 // }
 
 transactionRouter.get('/decode/gettransaction', async (c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate());
-
-    try {
-        const userId: string = c.get('userId');
-
-        const account = await prisma.account.findFirst({
-            where: {
-                userId: userId,
-            },
-            select: { id: true }
-        });
-
-        if (!account) {
-            return c.json({
-                error: "Account not found",
-            }, 404);
-        }
-
-        const transactions = await prisma.transaction.findMany({
-            where: {
-                accountId: account.id, // Use the account ID instead of user ID
-            },
-        });
-
-        if (transactions.length === 0) {
-            return c.json({
-                error: "No transactions found",
-            }, 404);
-        }
-
-        async function getRecipientDetails(recipientId: string) {
-            return prisma.user.findUnique({
-                where: { id: recipientId },
-                select: { firstname: true, lastname: true },
-            });
-        }
-
-        const transactionsWithRecipientDetails = await Promise.all(transactions.map(async (transaction) => {
-            const recipient = await getRecipientDetails(transaction.recipientId);
-            return {
-                ...transaction,
-                recipient: recipient || { firstname: '', lastname: '' }, // Handle case where recipient is not found
-            };
-        }));
-
-        const TransactionDetails = transactionsWithRecipientDetails.map(t => {
-            return {
-                name: t.recipient.firstname + " " + t.recipient.lastname,
-                date: formateDate(t.createdAt),
-                amount: t.amount,
-                type: t.type,
-                category: t.category
-            };
-        });
-
-
-        return c.json({
-            transactions: TransactionDetails
-        });
-
-    } catch (error) {
-        console.error("Server-Side Error in Retrieving Transactions: ", error);
-        return c.json({
-            error: "Server-Side Error in Retrieving Transactions"
-        }, 500);
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate());
+      
+  try {
+    const userId: string = c.get('userId');
+    
+    const account = await prisma.account.findFirst({
+      where: {
+        userId: userId,
+      },
+      select: { id: true }
+    });
+    if (!account) {
+      return c.json({
+        error: "Account not found",
+      }, 404);
     }
+    
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        accountId: account.id,
+      },
+    });
+    if (transactions.length === 0) {
+      return c.json({
+        message: "No transactions found",
+      }, 200);
+    }
+    
+    async function getRecipientDetails(recipientId: string) {
+      return prisma.user.findUnique({
+        where: { id: recipientId },
+        select: { firstname: true, lastname: true },
+      });
+    }
+    
+    const transactionsWithRecipientDetails = await Promise.all(transactions.map(async (transaction) => {
+      const recipient = await getRecipientDetails(transaction.recipientId);
+      return {
+        ...transaction,
+        recipient: recipient || { firstname: '', lastname: '' }, // Handle case where recipient is not found
+      };
+    }));
+    
+    const TransactionDetails = transactionsWithRecipientDetails.map(t => {
+      return {
+        name: t.recipient.firstname + " " + t.recipient.lastname,
+        date: formatDate(t.createdAt),
+        amount: t.amount,
+        type: t.type,
+        category: t.category
+      };
+    });
+    
+    return c.json({
+      transactions: TransactionDetails
+    });
+      
+  } catch (error) {
+    console.error("Server-Side Error in Retrieving Transactions: ", error);
+    return c.json({
+      error: "Server-Side Error in Retrieving Transactions"
+    }, 500);
+  }
 });
 
-
-
-
 transactionRouter.post('/decode/transaction', async(c) => {
-
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())

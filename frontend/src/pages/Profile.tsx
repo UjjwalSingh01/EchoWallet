@@ -18,17 +18,16 @@ import { z } from 'zod';
 const BACKEND_URL = "https://echowallet-backend.dragneeln949.workers.dev/api/v1"
 
 const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
 });
-
 
 interface UserDetails {
   firstname: string,
@@ -66,40 +65,42 @@ export default function Profile() {
   };
 
   useEffect(() => {
-      const fetchDetails = async () => {
-    
-          try {
-            const response = await axios.get(`${BACKEND_URL}/user/decode/userprofile`, {
-              headers: { "Authorization": localStorage.getItem("token") }
-            });
+    const fetchDetails = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/user/decode/userprofile`, {
+          headers: { "Authorization": localStorage.getItem("token") }
+        });
 
-            console.log(response.data.user)
-            
-            setUser(response.data.user); 
-            
-          } catch (error) {
-            console.error("Error in Fetching Profile Details: ", error);
-            showSnackbar('Error in Fetching Profile Details', 'error');
-          }
-        };
-    
-        fetchDetails();
+        setUser(response.data.user);         
+      } catch (error) {
+        console.error("Error in Fetching Profile Details: ", error);
+        showSnackbar('Error in Fetching Profile Details', 'error');
+      }
+    };
+
+    fetchDetails();
   }, [])
 
 
   async function handleUpdate() {
     try {
+      const updatedUser = {
+        ...user,
+        firstname: (user.firstname ?? "").trim(),
+        lastname: (user.lastname ?? "").trim(),
+        email: (user.email ?? "").trim(),
+      };
+
       await axios.post(`${BACKEND_URL}/user/decode/updateprofile`, {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email
-      } , {
+      }, {
         headers: { "Authorization": localStorage.getItem("token") },
       })
 
+      setUser(updatedUser);
       showSnackbar("Profile updated successfully!", "success");
-      window.location.reload();
-
     } catch (error) {
       showSnackbar("Error updating profile.", "error");
       console.error('Error in Updating Profile: ', error)
@@ -108,7 +109,6 @@ export default function Profile() {
 
   async function resetPass() {
     try {
-
       const parseData = ResetPasswordSchema.safeParse({ oldPassword, newPassword })
       if(!parseData.success){
         parseData.error.errors.forEach((error) => {
@@ -118,29 +118,22 @@ export default function Profile() {
         return;
       }
 
-      const response = await axios.post(`${BACKEND_URL}/user/decode/reset-pass`, 
-        {
+      const response = await axios.post(`${BACKEND_URL}/user/decode/reset-pass`, {
           oldPassword,
           newPassword
-        } , {
-          headers: { "Authorization": localStorage.getItem("token") },
-        }
+        }, 
+        { headers: { "Authorization": localStorage.getItem("token") },}
       )
 
       if(response.status === 200){
         showSnackbar("Password reset successfully!", "success");
       }
-      else {
-        showSnackbar(`${response.data.error}`, "error");
-      }
-
     } catch (error) {
       showSnackbar("Error resetting password.", "error");
       console.error("Error in Reseting Password: ", error)
     }
   }
   
-
   return (
     <Box
       sx={{
@@ -154,16 +147,16 @@ export default function Profile() {
       }}
     >
       <Card sx={{ 
-          width: '80%',
-          height: '80%',
-          display: 'flex',
-          flexDirection: 'column',
-          overflowY: 'auto',
-          scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-        }}>
+        width: '80%',
+        height: '80%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto',
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+      }}>
         <CardContent>
           <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
             Profile

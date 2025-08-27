@@ -4,153 +4,141 @@ import { Hono } from "hono";
 import { verify } from "hono/jwt";
 
 export const detailRouter = new Hono<{
-    Bindings: {
-        DATABASE_URL: string  // to specify that Database_url is a string;
-        JWT_SECRET: string
-    },
-    Variables: {
-        userId: string;
-    }
+  Bindings: {
+    DATABASE_URL: string
+    JWT_SECRET: string
+  },
+  Variables: {
+    userId: string;
+  }
 }>();
 
 
 detailRouter.use("/decode/*", async (c, next) => {
-    const token = c.req.header("authorization") || "";
-  
-    try {
-        const user: any = await verify(token, c.env.JWT_SECRET)
-        c.set("userId", user.id);
-  
-        await next();
-  
-    } catch (err) {
-        return c.json({
-            error: "You Are Not Logged In"
-        }, 400)
-    }
+  const token = c.req.header("authorization") || "";
+  try {
+    const user: any = await verify(token, c.env.JWT_SECRET)
+    c.set("userId", user.id);
+
+    await next();
+  } catch (err) {
+    return c.json({
+      error: "You Are Not Logged In"
+    }, 400)
+  }
 })
-
-
 
 detailRouter.get('/decode/getnotifications', async(c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const userId: string = c.get('userId')
-
-        const notification = await prisma.notification.findMany ({
-            take: 10,
-            where: {
-                userId: userId
-            },
-            select: {
-                name: true,
-                amount: true,
-                type: true
-            }
-        })
-
-        return c.json({
-            notification: notification
-        }, 200)
-
-    } catch (error) {
-        console.error("Server-Site Error in Getting Notification: ", error)
-        return c.json({
-            error: "Server-Site Error in Getting Notification"
-        }, 500)
-    }
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+       
+  try {
+    const userId: string = c.get('userId')
+    
+    const notification = await prisma.notification.findMany ({
+      take: 10,
+      where: {
+        userId: userId
+      },
+      select: {
+        name: true,
+        amount: true,
+        type: true
+      }
+    })
+    
+    return c.json({
+      notification: notification
+    }, 200)
+  } catch (error) {
+    console.error("Server-Site Error in Getting Notification: ", error)
+    return c.json({
+      error: "Server-Site Error in Getting Notification"
+    }, 500)
+  }
 })
 
-
-
 detailRouter.get('/decode/getfriends', async (c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const userId: string = c.get('userId');
-
-        const friendsResponse = await prisma.friend.findMany({
-            where: {
-                userId: userId
-            },
-            select: {
-                friendId: true
-            }
-        });
-
-        const friendIds = friendsResponse.map(friend => friend.friendId);
-
-        const friendsDetails = await prisma.user.findMany({
-            where: {
-                id: { in: friendIds } 
-            },
-            select: {
-                id: true,
-                firstname: true,
-                lastname: true
-            }
-        });
-
-        return c.json({
-            friends: friendsDetails
-        }, 200);
-
-    } catch (error) {
-        console.error("Server-Side Error in Retrieving Friends: ", error);
-        return c.json({ 
-            error: "Server-Side Error in Retrieving Friends"
-        }, 500);
-    }
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+       
+  try {
+    const userId: string = c.get('userId');
+    
+    const friendsResponse = await prisma.friend.findMany({
+      where: {
+        userId: userId
+      },
+      select: {
+        friendId: true
+      }
+    });
+    
+    const friendIds = friendsResponse.map(friend => friend.friendId);
+    
+    const friendsDetails = await prisma.user.findMany({
+      where: {
+        id: { in: friendIds } 
+      },
+      select: {
+        id: true,
+        firstname: true,
+        lastname: true
+      }
+    });
+    
+    return c.json({
+      friends: friendsDetails
+    }, 200);
+      
+  } catch (error) {
+    console.error("Server-Side Error in Retrieving Friends: ", error);
+    return c.json({ 
+      error: "Server-Side Error in Retrieving Friends"
+    }, 500);
+  }
 });
-
-
 
 detailRouter.post('/decode/addfriend', async (c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const {id} : {id: string} = await c.req.json();
-        const userId: string = c.get('userId');
-
-        const response = await prisma.user.findFirst({
-            where:{
-                id: id
-            }
-        })
-
-        if(!response){
-            return c.json({
-                error: "Friend Does Not exist"
-            }, 400)
-        }
-
-        await prisma.friend.create({
-            data: {
-                userId: userId,
-                friendId: id,
-            }
-        });
-
-        return c.json({
-            message: 'Friend added successfully',
-        }, 200);
-
-    } catch (error) {
-        console.error("Server-Side Error in Adding Friends: ", error);
-        return c.json({ 
-            error: "Server-Side Error while adding friend." 
-        }, 500);
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+      
+  try {
+    const { id } : {id: string} = await c.req.json();
+    const userId: string = c.get('userId');
+    
+    const response = await prisma.user.findFirst({
+      where:{
+        id: id
+      }
+    })
+    
+    if(!response){
+      return c.json({
+        error: "Friend Does Not exist"
+      }, 400)
     }
+    
+    await prisma.friend.create({
+      data: {
+        userId: userId,
+        friendId: id,
+      }
+    });
+    
+    return c.json({
+      message: 'Friend added successfully',
+    }, 200);
+  } catch (error) {
+    console.error("Server-Side Error in Adding Friends: ", error);
+    return c.json({ 
+      error: "Server-Side Error while adding friend." 
+    }, 500);
+  }
 });
-
-
 
 detailRouter.post('/decode/removefriend', async(c) => {
     const prisma = new PrismaClient({
@@ -190,8 +178,6 @@ detailRouter.post('/decode/removefriend', async(c) => {
         }, 500);
     }
 })
-
-
 
 detailRouter.get('/decode/dashboardDetails', async (c) => {
     const prisma = new PrismaClient({
@@ -324,42 +310,38 @@ detailRouter.get('/decode/dashboardDetails', async (c) => {
     }
 });
 
-
-
 detailRouter.post('/query', async(c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const { query } : { query: string } = await c.req.json()
-
-        if(query === ""){
-            return c.json({
-                error: "Empty Query is Not allowed"
-            }, 400)
-        }
-        else if(query.length <= 6){
-            return c.json({
-                error: 'Query Must Be Atleast 6 Characters Long'
-            }, 400)
-        }
-
-        await prisma.query.create({
-            data:{
-                query: query,
-                resolved: false
-            }
-        })
-
-        return c.json({
-            message: 'Query Added Successfully'
-        }, 200)
-        
-    } catch (error) {
-        console.error("Server-Side Error in Adding Query: ", error);
-        return c.json({ 
-            error: "Server-Side Error in Adding Query"
-        }, 500);
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+  
+  try {
+    const { query } : { query: string } = await c.req.json()
+    if(query === ""){
+      return c.json({
+        error: "Empty Query is Not allowed"
+      }, 400)
     }
+    else if(query.length <= 6){
+      return c.json({
+        error: 'Query Must Be Atleast 6 Characters Long'
+      }, 400)
+    }  
+
+    await prisma.query.create({
+      data:{
+        query: query,
+        resolved: false
+      }
+    })
+    
+    return c.json({
+      message: 'Query Added Successfully'
+    }, 200)
+  } catch (error) {
+    console.error("Server-Side Error in Adding Query: ", error);
+    return c.json({ 
+      error: "Server-Side Error in Adding Query"
+    }, 500);
+  }
 })

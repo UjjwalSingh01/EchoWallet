@@ -73,19 +73,19 @@ const Trips = () => {
         }}
       >
         <CardContent>
-          <Typography sx={{ fontSize: 44, marginBottom: 4, marginTop: 2, marginLeft: 2 }} color="text.secondary" gutterBottom>
-            Your Groups
-          </Typography>
-          <Divider sx={{ marginBottom: 3 }} />
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'center',
-              marginBottom: 4,
+              width: '100%',
+              justifyContent: 'space-between',
             }}
           >
+            <Typography sx={{ fontSize: 44, marginLeft: 2 }} color="text.secondary" gutterBottom>
+              Your Groups
+            </Typography>
             <BasicModal name='Add Group' action='Add Group' />
           </Box>
+          <Divider sx={{ marginBottom: 3 }} />
           {
             groups.map((group) => (
               <GroupCard key={group.id} data={group} />

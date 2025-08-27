@@ -17,7 +17,6 @@ const registerSchema = z.object({
 });
 
 export default function Register() {
-
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
@@ -74,16 +73,15 @@ export default function Register() {
       }
 
     } catch (error) {
-        showSnackbar('Error in User Registration', 'error');
-        console.error("Error in Registration:", error);
+      showSnackbar('Error in User Registration', 'error');
+      console.error("Error in Registration:", error);
     }
-    
   }
 
   return (
     <div className="bg-cover bg-center h-svh w-full" style={{ backgroundImage: `url(${image})` }}>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="w-full max-w-md bg-white bg-opacity-80 rounded-lg shadow-lg dark:border dark:bg-gray-800 dark:bg-opacity-70 dark:border-gray-700 transform transition-all hover:scale-105 duration-300">
+        <div className="w-full max-w-lg bg-white bg-opacity-80 rounded-lg shadow-lg dark:border dark:bg-gray-800 dark:bg-opacity-70 dark:border-gray-700 transform transition-all hover:scale-105 duration-300">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-5xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl dark:text-white animate-fade-in">
               EchoWallet
@@ -134,7 +132,7 @@ export default function Register() {
               <button type="button" onClick={handleRegister} className="w-full bg-amber-400 text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 transition-all duration-300 ease-in-out transform hover:scale-105">
                 Register
               </button>
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-center font-light text-gray-500 dark:text-gray-400">
                 Don’t have an account yet? <Link to="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login</Link>
               </p>
             </form>

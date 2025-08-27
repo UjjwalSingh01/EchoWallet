@@ -107,12 +107,10 @@ export default function SendMoneyModal({id}:{id: string}) {
       }
 
       setOpen(false);
-      
     } catch (error) {
       showSnackbar('Error in Making Transaction', 'error');
       console.error("Error in Making Transaction: ", error);
     }
-
   }
 
   return (
@@ -149,6 +147,7 @@ export default function SendMoneyModal({id}:{id: string}) {
               <FormControlLabel value="FOOD" control={<Radio />} label="Food" />
               <FormControlLabel value="SHOPPING" control={<Radio />} label="Shopping" />
               <FormControlLabel value="TRAVEL" control={<Radio />} label="Travel" />
+              <FormControlLabel value="OTHER" control={<Radio />} label="Other" />
             </RadioGroup>
           </FormControl>
 

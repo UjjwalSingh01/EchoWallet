@@ -4,106 +4,85 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { AddGroupTransactionSchema, AddGroupTransactionType } from "../schemas";
 import bcrypt from 'bcryptjs';
 import { verify } from "hono/jwt";
+import { formatDate } from "../../utils/formatDate";
 
 export const groupRouter = new Hono<{
-    Bindings: {
-        DATABASE_URL: string  
-        JWT_SECRET: string
-    },
-    Variables: {
-        userId: string;
-    }
+  Bindings: {
+    DATABASE_URL: string  
+    JWT_SECRET: string
+  },
+  Variables: {
+    userId: string;
+  }
 }>();
 
 
-function formatDate(date: Date){
-    const dateTimeOptions: Intl.DateTimeFormatOptions = {
-        weekday: "short", // abbreviated weekday name (e.g., 'Mon')
-        month: "short", // abbreviated month name (e.g., 'Oct')
-        day: "numeric", // numeric day of the month (e.g., '25')
-        hour: "numeric", // numeric hour (e.g., '8')
-        minute: "numeric", // numeric minute (e.g., '30')
-        hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
-    };
-
-    const formattedDateTime: string = new Date(date).toLocaleString(
-        "en-US",
-        dateTimeOptions
-    );
-
-    return formattedDateTime;
-}
-
-
 groupRouter.use("/decode/*", async (c, next) => {
-    const token = c.req.header("authorization") || "";
-  
-    try {
-        const user: any = await verify(token, c.env.JWT_SECRET)
-        c.set("userId", user.id);
-  
-        await next();
-  
-    } catch (err) {
-        return c.json({
-            error: "You Are Not Logged In"
-        }, 400)
-    }
+  const token = c.req.header("authorization") || "";
+  try {
+    const user: any = await verify(token, c.env.JWT_SECRET)
+    c.set("userId", user.id);
+
+    await next();
+  } catch (err) {
+    return c.json({
+      error: "You Are Not Logged In"
+    }, 400)
+  }
 })
 
 groupRouter.get('/decode/get-group', async(c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const userId = c.get('userId')
-
-        const groups = await prisma.groupMember.findMany({
-            where:{
-                userId: userId
-            }
-        })
-
-
-        if (groups.length === 0) {
-            return c.json({
-                error: 'User is not a member of any group'
-            }, 404);
-        }
-
-        const groupDetails = await Promise.all(groups.map(async (g) => {
-            const group = await prisma.group.findFirst({
-                where: {
-                    id: g.groupId
-                }
-            });
-
-            if (!group) {
-                return null;
-            }
-
-            return {
-                id: group.id,
-                title: group.title,
-                description: group.description,
-                date: group.createdAt ? formatDate(group.createdAt) : null,
-                balance: g.balance
-            };
-        }));
-
-        const validGroupDetails = groupDetails.filter(g => g !== null);
-
-        return c.json({
-            groups: validGroupDetails
-        }, 200);
-        
-    } catch (error) {
-        console.error('Server-Site Error in Retrieving Group: ', error)
-        return c.json({
-            error: 'Server-Site Error in Retrieving Group'
-        }, 500)
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate())
+       
+  try {
+    const userId = c.get('userId')
+    
+    const groups = await prisma.groupMember.findMany({
+      where:{
+        userId: userId
+      }
+    })
+    
+    if (groups.length === 0) {
+      return c.json({
+        message: 'User is not a member of any group'
+      }, 200);
     }
+    
+    const groupDetails = await Promise.all(groups.map(async (g) => {
+      const group = await prisma.group.findFirst({
+        where: {
+          id: g.groupId
+        }
+      });
+      
+      if (!group) {
+        return null;
+      }
+      
+      return {
+        id: group.id,
+        title: group.title,
+        description: group.description,
+        date: group.createdAt ? formatDate(group.createdAt) : null,
+        balance: g.balance
+      };
+    }));
+        
+    const validGroupDetails = groupDetails.filter(g => g !== null);
+        
+    return c.json({
+      groups: validGroupDetails
+    }, 200);
+      
+  } catch (error) {
+    console.error('Server-Site Error in Retrieving Group: ', error)
+    return c.json({
+      error: 'Server-Site Error in Retrieving Group'
+    }, 500)
+  }
 })
 
 groupRouter.get('/decode/get-group/:id', async(c) => {
@@ -376,8 +355,6 @@ groupRouter.post('/decode/add-group-transaction', async(c) => {
     }
 })
 
-
-
 interface AddGroupDetail {
     title: string,
     description: string,
@@ -421,7 +398,6 @@ groupRouter.post('/decode/add-group', async(c) => {
     }
 })
 
-
 interface AddMemberDetail {
     groupId: string, 
     userId: string
@@ -455,7 +431,6 @@ groupRouter.post('/add-group-member', async(c) => {
         }, 500)
     }
 })
-
 
 groupRouter.post('/decode/delete-group', async(c) => {
     const prisma = new PrismaClient({
@@ -495,8 +470,6 @@ groupRouter.post('/decode/delete-group', async(c) => {
         }, 500)
     }
 })
-
-
 
 groupRouter.post('/delete-group-transaction', async(c) => {
     const prisma = new PrismaClient({

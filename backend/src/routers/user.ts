@@ -3,54 +3,47 @@ import bcrypt from 'bcryptjs';
 import { sign, verify } from 'hono/jwt'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
-import {
-    getCookie,
-    setCookie,
-    deleteCookie,
-} from 'hono/cookie'
 import { RegisterSchema, RegisterType, ResetPasswordSchema, ResetPasswordType, ResetPinSchema, ResetPinType, SignInSchema, SignInType } from "../schemas";
 
 
 export const userRouter = new Hono<{
-	Bindings: {
-        DATABASE_URL: string  
-        JWT_SECRET: string
-	},
-    Variables: {
-        userId: string;
-    }
+  Bindings: {
+    DATABASE_URL: string  
+    JWT_SECRET: string
+  },
+  Variables: {
+      userId: string;
+  }
 }>();
 
-
 userRouter.post('/register', async (c) => {
-
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate())
-
+    
     try {
+        console.log("he")
         const detail: RegisterType = await c.req.json();
-        // console.log(detail);
-
+        
         const zodResult = RegisterSchema.safeParse(detail);
         if (!zodResult.success) {
             return c.json({
                 error: "Invalid Format",
             }, 401);
         }
-
+        
         const existingUser = await prisma.user.findFirst({
             where: {
                 email: detail.email,
             },
         });
-
+        
         if (existingUser) {
             return c.json({
                 error: "User already exists",
             }, 409);
         }
-
+        
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(detail.password, saltRounds);
         const hashedPin = await bcrypt.hash(detail.pin, saltRounds);
@@ -91,7 +84,6 @@ userRouter.post('/register', async (c) => {
         }, 500);
     }
 })
-
 
 userRouter.post('/login', async (c) => {
     
@@ -147,7 +139,6 @@ userRouter.post('/login', async (c) => {
     }
 })
 
-
 userRouter.use("/decode/*", async (c, next) => {
     try {
         const token = c.req.header("authorization") || "";
@@ -169,7 +160,6 @@ userRouter.use("/decode/*", async (c, next) => {
         }, 403)
     }
 })
-
 
 userRouter.get('/users' , async(c) => {
 
@@ -215,7 +205,6 @@ userRouter.get('/users' , async(c) => {
         }, 500)
     }
 })
-
 
 userRouter.get('/decode/userprofile', async(c) =>{
     const prisma = new PrismaClient({
@@ -264,8 +253,6 @@ userRouter.get('/decode/userprofile', async(c) =>{
     }
 })
 
-
-
 userRouter.post('/decode/addbalance', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
@@ -313,8 +300,6 @@ userRouter.post('/decode/addbalance', async (c) => {
         }, 500);
     }
 });
-
-
 
 userRouter.post('/decode/resetpin', async(c) => {
     const prisma = new PrismaClient({
@@ -370,8 +355,6 @@ userRouter.post('/decode/resetpin', async(c) => {
         }, 500);
     }
 });
-
-
 
 interface UpdateDetails {
     firstname: string,
@@ -429,8 +412,6 @@ userRouter.post('/decode/updateprofile', async(c) =>{
         }, 500)
     }
 })
-
-
 
 userRouter.post('/decode/reset-pass', async(c) =>{
     const prisma = new PrismaClient({

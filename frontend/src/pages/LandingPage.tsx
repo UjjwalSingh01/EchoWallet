@@ -41,7 +41,7 @@ const Desktop = ({ className = "" }) => {
   }, []);
 
   return (
-    <main className={`w-full bg-darkslateblue flex flex-col items-center py-24 px-6 ${className}`} ref={(el) => { if (el) sectionsRef.current[0] = el as HTMLDivElement; }}>
+    <main className={`w-full bg-darkslateblue flex flex-col items-center py-16 px-6 ${className}`} ref={(el) => { if (el) sectionsRef.current[0] = el as HTMLDivElement; }}>
       <div className="w-[90%] flex flex-col justify-center items-center">
         <header className="w-full py-6 flex justify-between items-center px-6 text-lavenderblush text-2xl font-outfit">
           <b className="font-roboto text-[44px] font-bold text-white">EchoWallet</b>
@@ -53,8 +53,12 @@ const Desktop = ({ className = "" }) => {
         </header>
 
         <section id="about" className="w-full flex flex-col items-center gap-10 my-10" >
-          <div className="relative w-full max-w-[90%] h-[650px] overflow-hidden rounded-lg">
-            <img src={hero} alt="Hero" className="w-full h-full object-cover" />
+          <div className="relative w-full h-[650px] overflow-hidden rounded-lg">
+            <img 
+              src={hero} 
+              alt="Hero" 
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 flex flex-col justify-center p-6 space-y-6 bg-gradient-to-r from-black/60 to-transparent">
               <b className="text-white font-roboto-flex text-[40px] lg:text-[54px] inline-block">
                 Innovative <br />

@@ -1,3 +1,6 @@
+# prod
+dist/
+
 # Logs
 logs
 *.log
@@ -8,9 +11,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
 dist-ssr
 *.local
+
+# env
+.env
+.env.production
+.dev.vars
 
 # Editor directories and files
 .vscode/*

@@ -39,7 +39,6 @@ model Account {
   updatedAt     DateTime      @default(now())
 }
 
-
 model Transaction {
   id            String              @id @default(uuid())
   account       Account             @relation(fields: [accountId], references: [id]) // Sender or Source account
@@ -53,7 +52,6 @@ model Transaction {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @default(now())
 }
-
 
 model Friend {
   id            String    @id @default(uuid())
@@ -77,7 +75,6 @@ model Notification {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now())
 }
-
 
 model Group {
   id          String    @id @default(uuid())
